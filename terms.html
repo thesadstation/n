@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>শর্তাবলী | The Sad Station</title>
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase Script -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <div class="header-top-row">
+                <div class="header-left">
+                    <a href="index.html" style="text-decoration: none; display: flex; align-items: center; color: white;">
+                        <img id="terms-site-logo" src="" alt="The Sad Station Logo" class="site-logo" style="display: none; width: 40px; margin-right: 10px;">
+                        <h1 class="site-title">The Sad Station</h1>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="margin-top: 40px; margin-bottom: 60px; line-height: 1.8; color: #ccc; max-width: 500px;">
+        
+        <div style="background: #121212; border: 1px solid #1c1c1c; border-radius: 16px; padding: 40px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <a href="index.html" class="download-btn" style="text-decoration: none; padding: 10px 20px; display: inline-block;">🏠 হোম পেজে ফিরে যান</a>
+            </div>
+
+            <h2 style="color: #fff; font-size: 28px; margin-bottom: 20px; border-left: 4px solid #e63946; padding-left: 15px;">শর্তাবলী</h2>
+            
+            <p>আমাদের প্ল্যাটফর্ম <strong>The Sad Station</strong> ব্যবহার করার সময় আপনাকে নিচের শর্তাবলী মেনে চলতে হবে:</p>
+            
+            <h3 style="color: #fff; margin-top: 25px;">১. ব্যবহারের নিয়ম</h3>
+            <p>আমাদের ওয়েবসাইট থেকে প্রাপ্ত যেকোনো গান বা কন্টেন্ট শুধুমাত্র ব্যক্তিগত এবং বিনোদনের উদ্দেশ্যে ব্যবহার করা যাবে। কোনো বাণিজ্যিক উদ্দেশ্যে এটি ব্যবহার করা নিষেধ।</p>
+
+            <h3 style="color: #fff; margin-top: 25px;">২. মেধাস্বত্ব (Copyright)</h3>
+            <p>এই প্ল্যাটফর্মের সমস্ত কন্টেন্ট আমাদের নিজস্ব সম্পদ। কোনো গান বা কন্টেন্ট অনুমতি ছাড়া ডাউনলোড করে পুনরায় আপলোড বা ডিস্ট্রিবিউট করা আইনত দণ্ডনীয় অপরাধ।</p>
+
+            <h3 style="color: #fff; margin-top: 25px;">৩. অ্যাকাউন্টের নিরাপত্তা</h3>
+            <p>আপনি যদি আমাদের এখানে সাইন-আপ করেন, তবে আপনার অ্যাকাউন্টের তথ্য এবং পাসওয়ার্ড সুরক্ষিত রাখা আপনার দায়িত্ব। কোনো অনাকাঙ্ক্ষিত কাজের জন্য ইউজার নিজেই দায়ী থাকবেন।</p>
+
+            <h3 style="color: #fff; margin-top: 25px;">৪. শর্ত পরিবর্তন</h3>
+            <p>আমরা যেকোনো সময় আমাদের এই শর্তাবলী পরিবর্তন বা আপডেট করার অধিকার রাখি। পরিবর্তনের পর নতুন শর্তাবলী এই পেজে আপডেট করে দেওয়া হবে।</p>
+        </div>
+    </main>
+
+    <script src="config.js"></script>
+    <script>
+        // লোগো লোড করার স্ক্রিপ্ট
+        const db = window.db;
+        db.collection("site_branding").doc("site_branding").get().then((doc) => {
+            if (doc.exists && doc.data().logo_url) {
+                const logoImg = document.getElementById('terms-site-logo');
+                if (logoImg) {
+                    logoImg.src = doc.data().logo_url;
+                    logoImg.style.display = 'block';
+                }
+            }
+        }).catch(err => console.error("Error loading logo:", err));
+    </script>
+
+    <footer style="text-align: center; padding: 30px 15px; color: #555; font-size: 13px;">
+        <p>Copyright &copy; 2026 The Sad Station. All Rights Reserved.</p>
+    </footer>
+
+</body>
+</html>

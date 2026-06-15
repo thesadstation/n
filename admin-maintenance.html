@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>মেইনটেনেন্স মোড সেটিংস | The Sad Station</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --bg: #050505; --card: #0d0d0d; --logo-gold: #baa184; }
+        body { background-color: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        .container { max-width: 500px; margin: 40px auto; background: var(--card); padding: 30px; border-radius: 15px; border: 1px solid var(--logo-gold); }
+        h2 { color: var(--logo-gold); text-align: center; }
+        .switch-container { display: flex; justify-content: space-between; align-items: center; margin-top: 30px; padding: 20px; border: 1px solid #333; border-radius: 10px; }
+        .btn-update { width: 100%; padding: 12px; margin-top: 20px; background: var(--logo-gold); border: none; color: #000; font-weight: bold; border-radius: 8px; cursor: pointer; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="admin.html" style="color:#888; text-decoration:none;"><i class="fas fa-arrow-left"></i> ব্যাক</a>
+        <h2>মেইনটেনেন্স মোড</h2>
+        
+        <div class="switch-container">
+            <span>সাইট অফ বা অন করুন:</span>
+            <input type="checkbox" id="maintenance-toggle" style="transform: scale(1.5);">
+        </div>
+        
+        <button class="btn-update" onclick="updateMaintenance()">সেটিংস আপডেট করুন</button>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="config.js"></script>
+    <script>
+        const db = window.db;
+        const toggle = document.getElementById('maintenance-toggle');
+
+        // বর্তমান স্ট্যাটাস লোড করা
+        db.collection("site_branding").doc("settings").get().then(doc => {
+            if (doc.exists && doc.data().maintenance) {
+                toggle.checked = true;
+            }
+        });
+
+        // স্ট্যাটাস আপডেট করা
+        function updateMaintenance() {
+            db.collection("site_branding").doc("settings").set({
+                maintenance: toggle.checked
+            }, { merge: true }).then(() => {
+                alert("মেইনটেনেন্স মোড আপডেট করা হয়েছে ভাই! 🎉");
+            });
+        }
+    </script>
+</body>
+</html>

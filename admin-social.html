@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Sad Station - সোশ্যাল লিংক সেটিংস</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { 
+            --bg: #050505; 
+            --card: #0d0d0d; 
+            --logo-gold: #baa184; 
+        }
+        body { 
+            background-color: var(--bg); 
+            color: #fff; 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+        }
+        
+        .wrapper { 
+            max-width: 550px; 
+            margin: 40px auto; 
+            padding: 30px; 
+            background: var(--card); 
+            border: 1px solid var(--logo-gold); 
+            border-radius: 14px; 
+            display: none;
+        }
+        
+        .back-btn { 
+            color: var(--logo-gold); 
+            text-decoration: none; 
+            font-size: 0.9rem; 
+            display: inline-block; 
+            margin-bottom: 25px; 
+            transition: 0.3s; 
+        }
+        .back-btn:hover { color: #fff; }
+        
+        h2 { 
+            color: var(--logo-gold); 
+            margin-top: 0;
+            margin-bottom: 25px; 
+            text-align: center; 
+            font-size: 1.5rem;
+        }
+        
+        .form-group { margin-bottom: 20px; }
+        .form-group label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 8px; }
+        
+        .input-with-icon { position: relative; }
+        .input-with-icon i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            font-size: 1.1rem;
+        }
+        .input-with-icon input { 
+            width: 100%; 
+            padding: 12px 15px 12px 45px; 
+            background: #121212; 
+            border: 1px solid var(--logo-gold); 
+            border-radius: 8px; 
+            color: #fff; 
+            box-sizing: border-box; 
+            outline: none; 
+            transition: 0.3s; 
+        }
+        .input-with-icon input:focus { border-color: #fff; }
+
+        /* ব্র্যান্ড আইকন কালার ভাই */
+        .fa-youtube { color: #ff0000; }
+        .fa-facebook { color: #1877f2; }
+        .fa-instagram { color: #e1306c; }
+        .fa-tiktok { color: #00f2fe; }
+        .fa-telegram-plane { color: #0088cc; } /* টেলিগ্রামের অফিশিয়াল ব্লু কালার */
+        
+        .btn-submit { 
+            width: 100%; 
+            padding: 14px; 
+            background: transparent; 
+            border: 1px solid var(--logo-gold); 
+            border-radius: 8px; 
+            color: var(--logo-gold); 
+            font-size: 1rem; 
+            font-weight: bold; 
+            cursor: pointer; 
+            transition: 0.3s; 
+            margin-top: 10px;
+        }
+        .btn-submit:hover { background: var(--logo-gold); color: #050505; }
+    </style>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+    <div class="wrapper" id="social-settings-wrapper">
+        <a href="admin.html" class="back-btn"><i class="fas fa-arrow-left"></i> ড্যাশবোর্ডে ফিরে যান</a>
+        
+        <h2><i class="fas fa-share-alt"></i> সোশ্যাল ও কমিউনিটি লিংক</h2>
+        
+        <form id="social-form">
+            <div class="form-group">
+                <label>টেলিগ্রাম চ্যানেল বা গ্রুপ লিংক (Telegram URL)</label>
+                <div class="input-with-icon">
+                    <i class="fab fa-telegram-plane"></i>
+                    <input type="url" id="social-telegram" placeholder="https://t.me/yourchannel">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>ইউটিউব চ্যানেল লিংক (YouTube URL)</label>
+                <div class="input-with-icon">
+                    <i class="fab fa-youtube"></i>
+                    <input type="url" id="social-youtube" placeholder="https://youtube.com/c/yourchannel">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>ফেসবুক পেজ লিংক (Facebook URL)</label>
+                <div class="input-with-icon">
+                    <i class="fab fa-facebook"></i>
+                    <input type="url" id="social-facebook" placeholder="https://facebook.com/yourpage">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>ইনস্টাগ্রাম প্রোফাইল লিংক (Instagram URL)</label>
+                <div class="input-with-icon">
+                    <i class="fab fa-instagram"></i>
+                    <input type="url" id="social-instagram" placeholder="https://instagram.com/yourprofile">
+                </div>
+            </div>
+            <div class="form-group">
+                <label>টিকটক প্রোফাইল লিংক (TikTok URL)</label>
+                <div class="input-with-icon">
+                    <i class="fab fa-tiktok"></i>
+                    <input type="url" id="social-tiktok" placeholder="https://tiktok.com/@yourusername">
+                </div>
+            </div>
+            <button type="submit" class="btn-submit">💾 লিংকসমূহ সেভ করুন</button>
+        </form>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="admin-social.js"></script>
+</body>
+</html>

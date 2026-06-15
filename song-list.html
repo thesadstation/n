@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Sad Station - সকল গানের তালিকা</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { 
+            --bg: #050505; 
+            --card: #0d0d0d; 
+            --logo-gold: #baa184; 
+            --danger: #dc3545;
+            --success: #1db954;
+        }
+        body { 
+            background-color: var(--bg); 
+            color: #fff; 
+            font-family: 'Segoe UI', sans-serif; 
+            margin: 0; 
+            padding: 20px; 
+        }
+        
+        /* সিকিউরিটি চেক হওয়ার আগে হাইড থাকবে */
+        .wrapper { 
+            max-width: 800px; 
+            margin: 30px auto; 
+            padding: 25px; 
+            background: var(--card); 
+            border: 1px solid var(--logo-gold); 
+            border-radius: 14px; 
+            display: none;
+        }
+        
+        .back-btn { 
+            color: var(--logo-gold); 
+            text-decoration: none; 
+            font-size: 0.9rem; 
+            display: inline-block; 
+            margin-bottom: 20px; 
+            transition: 0.3s; 
+        }
+        .back-btn:hover { color: #fff; }
+        
+        h2 { color: var(--logo-gold); margin-top: 0; margin-bottom: 25px; text-align: center; }
+        
+        /* সার্চ বক্সের জোস ডিজাইন */
+        .search-container {
+            margin-bottom: 25px;
+            position: relative;
+        }
+        .search-container input {
+            width: 100%;
+            padding: 14px 15px 14px 45px;
+            background: #121212;
+            border: 1px solid var(--logo-gold);
+            border-radius: 8px;
+            color: #fff;
+            box-sizing: border-box;
+            outline: none;
+            font-size: 1rem;
+            transition: 0.3s;
+        }
+        .search-container input:focus { border-color: #fff; }
+        .search-container i {
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--logo-gold);
+        }
+
+        /* টেবিল রেসপনসিভ ডিজাইন */
+        .table-resp { width: 100%; overflow-x: auto; }
+        .data-table { width: 100%; border-collapse: collapse; text-align: left; }
+        .data-table th, .data-table td { padding: 12px 15px; border-bottom: 1px solid #161616; font-size: 0.95rem; }
+        .data-table th { color: var(--logo-gold); font-weight: 600; background: #090909; }
+        .data-table tr:hover { background: #111; }
+        
+        /* অ্যাকশন বাটনসমূহ */
+        .btn-action { padding: 6px 12px; border: 1px solid; border-radius: 6px; cursor: pointer; background: transparent; font-size: 0.85rem; margin-right: 5px; transition: 0.3s; }
+        .btn-edit { border-color: var(--logo-gold); color: var(--logo-gold); }
+        .btn-edit:hover { background: var(--logo-gold); color: #000; }
+        .btn-delete { border-color: var(--danger); color: var(--danger); }
+        .btn-delete:hover { background: var(--danger); color: #fff; }
+
+        /* 📌 এডিট পপ-আপ মোডাল (Modal) স্টাইল */
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.85);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+        .modal-content {
+            background: var(--card);
+            border: 1px solid var(--logo-gold);
+            padding: 25px;
+            border-radius: 14px;
+            width: 100%;
+            max-width: 550px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .modal-header h3 { color: var(--logo-gold); margin: 0; }
+        .close-modal { color: #aaa; font-size: 1.5rem; cursor: pointer; }
+        .close-modal:hover { color: #fff; }
+
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 6px; }
+        .form-group input, .form-group textarea { width: 100%; padding: 10px; background: #121212; border: 1px solid var(--logo-gold); border-radius: 6px; color: #fff; box-sizing: border-box; outline: none; font-family: inherit; }
+        
+        .btn-save { width: 100%; padding: 12px; background: var(--logo-gold); color: #050505; border: none; border-radius: 6px; font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.3s; }
+        .btn-save:hover { background: #fff; }
+    </style>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+    <div class="wrapper" id="song-list-wrapper">
+        <a href="admin.html" class="back-btn"><i class="fas fa-arrow-left"></i> ড্যাশবোর্ডে ফিরে যান</a>
+        
+        <h2><i class="fas fa-list"></i> সকল গানের তালিকা</h2>
+        
+        <div class="search-container">
+            <i class="fas fa-search"></i>
+            <input type="text" id="search-input" placeholder="গানের নাম বা আইডি দিয়ে খুঁজুন ভাই...">
+        </div>
+
+        <div class="table-resp">
+            <table class="data-table">
+                <thead>
+                    <tr>
+                        <th style="width: 10%;">ID</th>
+                        <th style="width: 60%;">গানের শিরোনাম</th>
+                        <th style="width: 30%; text-align: center;">অ্যাকশন</th>
+                    </tr>
+                </thead>
+                <tbody id="song-table-body">
+                    </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="modal" id="edit-modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>✏️ গান এডিট করুন</h3>
+                <span class="close-modal" id="close-modal-btn">&times;</span>
+            </div>
+            <form id="edit-song-form">
+                <input type="hidden" id="edit-doc-id"> <div class="form-group">
+                    <label>গানের আইডি (সংখ্যা)</label>
+                    <input type="number" id="edit-song-id" required>
+                </div>
+                <div class="form-group">
+                    <label>গানের শিরোনাম</label>
+                    <input type="text" id="edit-song-title" required>
+                </div>
+                <div class="form-group">
+                    <label>থাম্বনেইল ইউআরএল</label>
+                    <input type="url" id="edit-song-thumbnail" required>
+                </div>
+                <div class="form-group">
+                    <label>অডিও ইউআরএল</label>
+                    <input type="url" id="edit-song-audio" required>
+                </div>
+                <div class="form-group">
+                    <label>গানের লিরিক্স</label>
+                    <textarea id="edit-song-lyrics" rows="5"></textarea>
+                </div>
+                <button type="submit" class="btn-save">💾 পরিবর্তনগুলো সেভ করুন</button>
+            </form>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="song-list.js"></script>
+</body>
+</html>

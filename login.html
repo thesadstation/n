@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>লগইন / সাইন আপ | The Sad Station</title>
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+
+    <style>
+        .reset-modal {
+            display: none; 
+            position: fixed; 
+            z-index: 1000; 
+            left: 0;
+            top: 0;
+            width: 100%; 
+            height: 100%; 
+            background-color: rgba(0, 0, 0, 0.8); 
+            backdrop-filter: blur(5px);
+            align-items: center;
+            justify-content: center;
+        }
+        .modal-content {
+            background-color: #121212;
+            border: 1px solid #1c1c1c;
+            border-radius: 16px;
+            padding: 30px 25px;
+            width: 90%;
+            max-width: 380px;
+            text-align: center;
+            box-shadow: 0 4px 25px rgba(0,0,0,0.7);
+            position: relative;
+            animation: fadeIn 0.3s ease-in-out;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: scale(0.9); }
+            to { opacity: 1; transform: scale(1); }
+        }
+        .close-modal {
+            position: absolute;
+            right: 15px;
+            top: 12px;
+            color: #888;
+            font-size: 20px;
+            cursor: pointer;
+            transition: color 0.2s;
+        }
+        .close-modal:hover {
+            color: #fff;
+        }
+    </style>
+</head>
+<body style="display: flex; flex-direction: column; min-height: 100vh;">
+
+    <header>
+        <div class="container">
+            <div class="header-top-row">
+                <div class="header-left">
+                    <a href="index.html" style="text-decoration: none; display: flex; align-items: center; color: white;">
+                        <img id="login-site-logo" src="" alt="The Sad Station Logo" class="site-logo" style="display: none;">
+                        <h1 class="site-title">The Sad Station</h1>
+                    </a>
+                </div>
+                
+                <div class="menu-container">
+                    <button id="three-dot-btn" class="three-dot-btn" aria-label="Menu">⋮</button>
+                    <div id="dropdown-menu" class="dropdown-menu">
+                        <a href="index.html">🏠 হোম</a>
+                        <a href="index.html?mode=favs">❤️ পছন্দের গান</a>
+                        <a href="profile.html">👤 প্রোফাইল</a>
+                        <a href="about.html">ℹ️ আমাদের সম্পর্কে</a>
+                        <a href="terms.html">📜 শর্তাবলী</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main style="flex: 1; display: flex; justify-content: center; align-items: center; padding: 40px 15px;">
+        
+        <div style="background: #121212; border: 1px solid #1c1c1c; border-radius: 16px; padding: 35px 25px; width: 100%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.6); text-align: center;">
+            
+            <div style="margin-bottom: 25px;">
+                <h2 id="auth-title" style="color: #fff; font-size: 22px; font-weight: 700; margin-bottom: 10px;">👋 স্বাগতম ভাই!</h2>
+                <p id="auth-subtitle" style="color: #888; font-size: 14px;">আপনার অ্যাকাউন্টে লগইন করুন</p>
+            </div>
+
+            <form id="auth-form" onsubmit="handleAuthSubmit(event)">
+                <div id="name-group" style="display: none; margin-bottom: 15px; text-align: left;">
+                    <label style="color: #ccc; font-size: 13px; display: block; margin-bottom: 6px; font-weight: 500;">👤 আপনার নাম</label>
+                    <div style="position: relative;">
+                        <i class="fas fa-user" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #555; font-size: 14px;"></i>
+                        <input type="text" id="auth-name" placeholder="আপনার নাম লিখুন" style="width: 100%; box-sizing: border-box; padding: 12px 12px 12px 38px; background: #1c1c1c; border: 1px solid #252525; border-radius: 8px; color: #fff; font-size: 14px; outline: none; transition: border-color 0.2s;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 15px; text-align: left;">
+                    <label style="color: #ccc; font-size: 13px; display: block; margin-bottom: 6px; font-weight: 500;">✉️ ইমেইল এড্রেস</label>
+                    <div style="position: relative;">
+                        <i class="fas fa-envelope" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #555; font-size: 14px;"></i>
+                        <input type="email" id="auth-email" required placeholder="example@email.com" style="width: 100%; box-sizing: border-box; padding: 12px 12px 12px 38px; background: #1c1c1c; border: 1px solid #252525; border-radius: 8px; color: #fff; font-size: 14px; outline: none; transition: border-color 0.2s;">
+                    </div>
+                </div>
+
+                <div style="margin-bottom: 20px; text-align: left;">
+                    <label style="color: #ccc; font-size: 13px; display: block; margin-bottom: 6px; font-weight: 500;">🔒 পাসওয়ার্ড</label>
+                    <div style="position: relative;">
+                        <i class="fas fa-lock" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #555; font-size: 14px;"></i>
+                        <input type="password" id="auth-password" required placeholder="••••••••" style="width: 100%; box-sizing: border-box; padding: 12px 12px 12px 38px; background: #1c1c1c; border: 1px solid #252525; border-radius: 8px; color: #fff; font-size: 14px; outline: none; transition: border-color 0.2s;">
+                    </div>
+                    
+                    <div id="forgot-password-box" style="text-align: right; margin-top: 8px;">
+                        <a href="#" onclick="openResetModal(event)" style="color: #888; text-decoration: none; font-size: 12px; transition: color 0.2s;">পাসওয়ার্ড ভুলে গেছেন?</a>
+                    </div>
+                </div>
+
+                <button type="submit" id="submit-btn" class="download-btn" style="width: 100%; padding: 12px; font-size: 15px; font-weight: 700; cursor: pointer; border-radius: 8px;">
+                    <i class="fas fa-sign-in-alt"></i> লগইন করুন
+                </button>
+            </form>
+
+            <p style="color: #aaa; font-size: 14px; margin-top: 20px;">
+                <span id="toggle-msg">অ্যাকাউন্ট নেই ভাই?</span> 
+                <a href="#" id="toggle-auth-mode" style="color: #1db954; text-decoration: none; font-weight: 600; margin-left: 5px;">নতুন অ্যাকাউন্ট খুলুন</a>
+            </p>
+
+            <div style="display: flex; align-items: center; margin: 20px 0; color: #444;">
+                <hr style="flex: 1; border: 0; border-top: 1px solid #1c1c1c;">
+                <span style="padding: 0 10px; font-size: 12px; color: #666; font-weight: 600;">অথবা</span>
+                <hr style="flex: 1; border: 0; border-top: 1px solid #1c1c1c;">
+            </div>
+
+            <button onclick="loginAsGuest()" style="width: 100%; background: #1c1c1c; border: 1px solid #252525; color: #bbb; padding: 12px; font-size: 14px; font-weight: 600; border-radius: 8px; cursor: pointer; display: flex; justify-content: center; align-items: center; gap: 10px; transition: background 0.2s;">
+                <i class="fas fa-user-secret" style="color: #ffb703;"></i> গেস্ট হিসেবে প্রবেশ করুন (Demo Mode)
+            </button>
+
+        </div>
+    </main>
+
+    <div id="password-reset-modal" class="reset-modal" onclick="closeResetModalOutside(event)">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeResetModal()">&times;</span>
+            <h3 style="color: #fff; font-size: 18px; font-weight: 600; margin-bottom: 10px;"><i class="fas fa-key" style="color: #1db954;"></i> পাসওয়ার্ড রিসেট করুন</h3>
+            <p style="color: #888; font-size: 13px; margin-bottom: 20px;">আপনার অ্যাকাউন্টের ইমেইল এড্রেসটি নিচে লিখুন ভাই, আমরা সেখানে একটি রিসেট লিংক পাঠিয়ে দেব।</p>
+            
+            <form id="popup-reset-form" onsubmit="handlePopupForgotPassword(event)">
+                <div style="margin-bottom: 20px; text-align: left;">
+                    <div style="position: relative;">
+                        <i class="fas fa-envelope" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); color: #555; font-size: 14px;"></i>
+                        <input type="email" id="reset-popup-email" required placeholder="আপনার ইমেইলটি লিখুন ভাই" style="width: 100%; box-sizing: border-box; padding: 12px 12px 12px 38px; background: #1c1c1c; border: 1px solid #252525; border-radius: 8px; color: #fff; font-size: 14px; outline: none;">
+                    </div>
+                </div>
+                <button type="submit" id="popup-reset-btn" class="download-btn" style="width: 100%; padding: 11px; font-size: 14px; font-weight: 700; border-radius: 8px; cursor: pointer;">
+                    <i class="fas fa-paper-plane"></i> লিংক পাঠান ভাই
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container" style="text-align: center; padding: 30px 15px;">
+            <div class="footer-links" style="margin-bottom: 15px;">
+                <a href="about.html" style="text-decoration: none; color: #888; margin: 0 5px;">About Us</a> | 
+                <a href="terms.html" style="text-decoration: none; color: #888; margin: 0 5px;">Terms & Conditions</a> | 
+                <a href="privacy.html" style="text-decoration: none; color: #888; margin: 0 5px;">Privacy Policy</a>
+            </div>
+            <p class="copyright" style="color: #555; font-size: 13px;">Copyright &copy; 2026 The Sad Station. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="config.js"></script>
+    <script>
+        const db = window.db;
+        let isLoginMode = true;
+
+        const threeDotBtn = document.getElementById('three-dot-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        if (threeDotBtn && dropdownMenu) {
+            threeDotBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('show');
+            });
+            document.addEventListener('click', () => {
+                dropdownMenu.classList.remove('show');
+            });
+        }
+
+        db.collection("site_branding").doc("site_branding").get().then((doc) => {
+            if (doc.exists && doc.data().logo_url) {
+                const logoImg = document.getElementById('login-site-logo');
+                if (logoImg) {
+                    logoImg.src = doc.data().logo_url;
+                    logoImg.style.display = 'block';
+                }
+            }
+        }).catch(err => console.error("Error logo loading:", err));
+
+        const toggleLink = document.getElementById('toggle-auth-mode');
+        const nameGroup = document.getElementById('name-group');
+        const authTitle = document.getElementById('auth-title');
+        const authSubtitle = document.getElementById('auth-subtitle');
+        const submitBtn = document.getElementById('submit-btn');
+        const toggleMsg = document.getElementById('toggle-msg');
+        const forgotPasswordBox = document.getElementById('forgot-password-box');
+
+        toggleLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            isLoginMode = !isLoginMode;
+
+            if (isLoginMode) {
+                authTitle.innerText = "👋 স্বাগতম ভাই!";
+                authSubtitle.innerText = "আপনার অ্যাকাউন্টে লগইন করুন";
+                nameGroup.style.display = "none";
+                forgotPasswordBox.style.display = "block";
+                document.getElementById('auth-name').required = false;
+                submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> লগইন করুন';
+                toggleMsg.innerText = "অ্যাকাউন্ট নেই ভাই?";
+                toggleLink.innerText = "নতুন অ্যাকাউন্ট খুলুন";
+            } else {
+                authTitle.innerText = "📝 অ্যাকাউন্ট তৈরি করুন";
+                authSubtitle.innerText = "আপনার সঠিক তথ্য দিয়ে ফরমটি পূরণ করুন ভাই";
+                nameGroup.style.display = "block";
+                forgotPasswordBox.style.display = "none";
+                document.getElementById('auth-name').required = true;
+                submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> সাইন-আপ করুন';
+                toggleMsg.innerText = "অলরেডি অ্যাকাউন্ট আছে ভাই?";
+                toggleLink.innerText = "লগইন করুন";
+            }
+        });
+
+        const modal = document.getElementById('password-reset-modal');
+        function openResetModal(event) {
+            event.preventDefault();
+            const currentEmail = document.getElementById('auth-email').value.trim();
+            if(currentEmail) {
+                document.getElementById('reset-popup-email').value = currentEmail;
+            }
+            modal.style.display = "flex";
+        }
+
+        function closeResetModal() {
+            modal.style.display = "none";
+        }
+
+        function closeResetModalOutside(event) {
+            if (event.target === modal) {
+                modal.style.display = "none";
+            }
+        }
+
+        function handlePopupForgotPassword(event) {
+            event.preventDefault();
+            const resetEmail = document.getElementById('reset-popup-email').value.trim();
+            const popupResetBtn = document.getElementById('popup-reset-btn');
+
+            if (!resetEmail) return;
+
+            popupResetBtn.disabled = true;
+            popupResetBtn.innerText = "লিংক পাঠানো হচ্ছে ভাই...";
+
+            firebase.auth().sendPasswordResetEmail(resetEmail)
+                .then(() => {
+                    alert("আপনার ইমেইলে পাসওয়ার্ড রিসেট করার একটি লিংক পাঠানো হয়েছে ভাই। আপনার ইনবক্স অথবা স্প্যাম (Spam) ফোল্ডারটি চেক করুন! ✉️");
+                    closeResetModal();
+                    popupResetBtn.disabled = false;
+                    popupResetBtn.innerHTML = '<i class="fas fa-paper-plane"></i> লিংক পাঠান ভাই';
+                })
+                .catch((error) => {
+                    popupResetBtn.disabled = false;
+                    popupResetBtn.innerHTML = '<i class="fas fa-paper-plane"></i> লিংক পাঠান ভাই';
+                    console.error("Password reset error:", error);
+                    if (error.code === "auth/user-not-found") {
+                        alert("এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট খুঁজে পাওয়া যায়নি ভাই!");
+                    } else if (error.code === "auth/invalid-email") {
+                        alert("দয়া করে একটি সঠিক ইমেইল এড্রেস দিন ভাই!");
+                    } else {
+                        alert("লিংক পাঠাতে সমস্যা হয়েছে: " + error.message);
+                    }
+                });
+        }
+
+        function handleAuthSubmit(event) {
+            event.preventDefault();
+
+            const email = document.getElementById('auth-email').value.trim();
+            const password = document.getElementById('auth-password').value;
+            const name = document.getElementById('auth-name').value.trim();
+
+            if (!window.firebase || !firebase.auth) {
+                alert("ফায়ারবেস লোড হতে সমস্যা হয়েছে ভাই, পেজটি রিফ্রেশ করুন।");
+                return;
+            }
+
+            submitBtn.disabled = true;
+            submitBtn.innerText = "প্রসেসিং হচ্ছে ভাই...";
+
+            if (isLoginMode) {
+                firebase.auth().signInWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        alert("সফলভাবে লগইন হয়েছে ভাই! 🎉");
+                        window.location.href = "profile.html";
+                    })
+                    .catch((error) => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> লগইন করুন';
+                        alert("ভুল ইমেইল বা পাসওয়ার্ড দিয়েছেন ভাই! আবার চেষ্টা করুন।");
+                    });
+            } else {
+                // সাইন-আপ করার সময় Auth এবং Firestore দুই জায়গায় সেভ করার আপডেট লজিক
+                firebase.auth().createUserWithEmailAndPassword(email, password)
+                    .then((userCredential) => {
+                        const user = userCredential.user;
+                        return user.updateProfile({ displayName: name }).then(() => {
+                            // Firestore-এর users কালেকশনে ডেটা সেভ করা হচ্ছে
+                            return db.collection("users").doc(user.uid).set({
+                                uid: user.uid,
+                                name: name,
+                                email: email,
+                                createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                            });
+                        });
+                    })
+                    .then(() => {
+                        alert("আপনার অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে ভাই! 🎉");
+                        window.location.href = "profile.html";
+                    })
+                    .catch((error) => {
+                        submitBtn.disabled = false;
+                        submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> সাইন-আপ করুন';
+                        if (error.code === "auth/email-already-in-use") {
+                            alert("এই ইমেইলটি অলরেডি ব্যবহার করা হয়েছে ভাই!");
+                        } else {
+                            alert("অ্যাকাউন্ট তৈরি করতে সমস্যা হয়েছে: " + error.message);
+                        }
+                    });
+            }
+        }
+
+        function loginAsGuest() {
+            if (window.firebase && firebase.auth) {
+                submitBtn.disabled = true;
+                firebase.auth().signInWithEmailAndPassword("guest@thesadstation.com", "guest123456")
+                    .then(() => {
+                        alert("গেস্ট মোডে প্রবেশ করেছেন ভাই! (পছন্দের গান ও প্রোফাইল ফিচার সেভ থাকবে না)");
+                        window.location.href = "profile.html";
+                    })
+                    .catch(() => {
+                        firebase.auth().createUserWithEmailAndPassword("guest@thesadstation.com", "guest123456")
+                            .then((res) => {
+                                return res.user.updateProfile({ displayName: "The Sad Guest" });
+                            })
+                            .then(() => {
+                                window.location.href = "profile.html";
+                            })
+                            .catch(err => {
+                                submitBtn.disabled = false;
+                                alert("গেস্ট মোডে ঢুকতে সমস্যা হয়েছে ভাই।");
+                            });
+                    });
+            }
+        }
+    </script>
+</body>
+</html>

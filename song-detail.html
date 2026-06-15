@@ -1,0 +1,319 @@
+<!DOCTYPE html>
+<html lang="bn" itemscope itemtype="http://schema.org/MusicRecording">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title id="dynamic-title">গানের লিরিক্স ও ডিটেইলস | The Sad Station</title>
+    <meta name="description" id="dynamic-desc" content="The Sad Station-এর অফিশিয়াল প্ল্যাটফর্মে এই মৌলিক গানটির সম্পূর্ণ লিরিক্স শুনুন, কাস্টম প্লেয়ারে প্লে করুন এবং হাই-কোয়ালিটি mp3 সরাসরি ডাউনলোড করুন।">
+    
+    <meta name="author" content="The Sad Station">
+    <meta name="robots" content="index, follow">
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <!-- ফায়ারবেস কোর এবং অথেনটিকেশন মডিউল কমপ্যাট লাইব্রেরি -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <div class="header-top-row">
+                <div class="header-left">
+                    <a href="index.html" style="text-decoration: none; display: flex; align-items: center; color: white;">
+                        <img id="detail-site-logo" src="" alt="The Sad Station Logo" class="site-logo" style="display: none;">
+                        <h1 class="site-title">The Sad Station</h1>
+                    </a>
+                </div>
+                
+                <div class="menu-container">
+                    <button id="three-dot-btn" class="three-dot-btn" aria-label="Menu">⋮</button>
+                    <div id="dropdown-menu" class="dropdown-menu">
+                        <a href="index.html">🏠 হোম</a>
+                        <a href="index.html?mode=favs">❤️ পছন্দের গান</a>
+                        <a href="profile.html">👤 প্রোফাইল</a>
+                        <a href="about.html">ℹ️ আমাদের সম্পর্কে</a>
+                        <a href="terms.html">📜 শর্তাবলী</a>
+                        <!-- 🚪 ডিফল্টভাবে লগআউট বাটনটি এখানে হাইড করে রাখা হলো ভাই -->
+                        <a href="#" id="menu-logout" class="menu-logout-btn" style="display: none; color: #ff4d4d;"><i class="fas fa-sign-out-alt"></i> লগআউট</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="margin-top: 30px; margin-bottom: 50px;">
+        
+        <div style="margin-bottom: 20px;">
+            <a href="index.html" style="color: #1db954; text-decoration: none; font-weight: 600; font-size: 14px;">
+                <i class="fas fa-arrow-left"></i> হোম পেজে ফিরে যান
+            </a>
+        </div>
+
+        <div id="detail-loader" class="loader" style="text-align: center; padding: 50px;">গানের লিরিক্স ও ফাইল লোড হচ্ছে ভাই...</div>
+
+        <div id="detail-error" style="display: none; text-align: center; color: #888; padding: 40px;">
+            <p>দুঃখিত ভাই, এই গানটি খুঁজে পাওয়া যায়নি! 🔍</p>
+        </div>
+
+        <div id="song-detail-content" style="display: none;">
+            <div class="song-card" style="cursor: default; transform: none; box-shadow: none; border-color: #222;">
+                
+                <div class="song-header-meta">
+                    <img id="detail-song-thumb" class="song-thumb" src="" alt="Song Thumbnail" style="width: 80px; height: 80px;">
+                    <div class="song-info-block">
+                        <h2 id="detail-song-title" style="color: #fff; font-size: 20px; font-weight: 700; margin-bottom: 5px;">গানের শিরোনাম</h2>
+                        <span style="font-size: 13px; color: #1db954; font-weight: 600;"><i class="fas fa-music"></i> মৌলিক গান</span>
+                    </div>
+                </div>
+
+                <div class="custom-audio-player" style="margin-top: 15px;">
+                    <button id="detail-play-btn" class="play-pause-btn"><i class="fas fa-play"></i></button>
+                    <div class="progress-container">
+                        <span id="detail-current-time" class="current-time">0:00</span>
+                        <input type="range" id="detail-seek-slider" class="seek-slider" min="0" max="100" value="0">
+                        <span id="detail-duration-time" class="duration-time">--:--</span>
+                    </div>
+                </div>
+
+                <div class="download-wrapper" style="margin-top: 10px;">
+                    <a id="detail-download-btn" href="#" download="" target="_blank" class="download-btn">
+                        <i class="fas fa-download"></i> High Quality MP3 ডাউনলোড করুন
+                    </a>
+                </div>
+            </div>
+
+            <div style="background: #121212; border: 1px solid #1c1c1c; border-radius: 12px; padding: 25px; margin-top: 25px;">
+                <h3 style="color: #fff; font-size: 18px; margin-bottom: 20px; border-left: 4px solid #1db954; padding-left: 10px;">📄 গানের সম্পূর্ণ লিরিক্স (Lyrics)</h3>
+                <div id="detail-lyrics-box" style="color: #eaeaea; white-space: pre-line; font-size: 15px; line-height: 1.8; letter-spacing: 0.5px;">
+                    </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="container" style="text-align: center; padding: 30px 15px;">
+            
+            <div class="social-icons-block" style="margin-bottom: 25px; display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap;">
+                <a id="link-telegram" href="#" target="_blank" style="display: none; color: #0088cc; font-size: 28px;"><i class="fab fa-telegram"></i></a>
+                <a id="link-youtube" href="#" target="_blank" style="display: none; color: #ff0000; font-size: 28px;"><i class="fab fa-youtube"></i></a>
+                <a id="link-facebook" href="#" target="_blank" style="display: none; color: #1877f2; font-size: 28px;"><i class="fab fa-facebook"></i></a>
+                <a id="link-instagram" href="#" target="_blank" style="display: none; color: #c13584; font-size: 28px;"><i class="fab fa-instagram"></i></a>
+                <a id="link-tiktok" href="#" target="_blank" style="display: none; color: #ffffff; font-size: 28px;"><i class="fab fa-tiktok"></i></a>
+            </div>
+
+            <div class="footer-links" style="margin-bottom: 15px;">
+                <a href="about.html" style="text-decoration: none; color: #888; margin: 0 5px;">About Us</a> | 
+                <a href="terms.html" style="text-decoration: none; color: #888; margin: 0 5px;">Terms & Conditions</a> | 
+                <a href="privacy.html" style="text-decoration: none; color: #888; margin: 0 5px;">Privacy Policy</a>
+            </div>
+            <p class="copyright" style="color: #555; font-size: 13px;">Copyright &copy; 2026 The Sad Station. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="config.js"></script>
+    <script>
+        const db = window.db;
+
+        // ৩-ডট মেনু ওপেন/ক্লোজ লজিক ভাই
+        const threeDotBtn = document.getElementById('three-dot-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        if (threeDotBtn && dropdownMenu) {
+            threeDotBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('show');
+            });
+            document.addEventListener('click', () => {
+                dropdownMenu.classList.remove('show');
+            });
+        }
+
+        // লোগো ব্র্যান্ডিং লোড লজিক
+        db.collection("site_branding").doc("site_branding").get().then((doc) => {
+            if (doc.exists && doc.data().logo_url) {
+                const logoImg = document.getElementById('detail-site-logo');
+                if (logoImg) {
+                    logoImg.src = doc.data().logo_url;
+                    logoImg.style.display = 'block';
+                }
+            }
+        }).catch(err => console.error("Error logo loading:", err));
+
+        // 🔗 ডাটাবেজ থেকে সোশ্যাল ও টেলিগ্রাম লিংক ফুটারের আইকনগুলোতে লোড করার লজিক ভাই
+        db.collection("site_branding").doc("social_links").get().then((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                const links = {
+                    "link-telegram": data.telegram,
+                    "link-youtube": data.youtube,
+                    "link-facebook": data.facebook,
+                    "link-instagram": data.instagram,
+                    "link-tiktok": data.tiktok
+                };
+
+                for (const [id, url] of Object.entries(links)) {
+                    const el = document.getElementById(id);
+                    if (url && el) {
+                        el.href = url;
+                        el.style.display = 'inline-block';
+                    }
+                }
+            }
+        }).catch(err => console.error("Error loading social links:", err));
+
+        // ইউআরএল প্যারামিটার থেকে আইডি বের করার লজিক
+        function getSongIdFromURL() {
+            const params = new URLSearchParams(window.location.search);
+            return params.get('id');
+        }
+
+        // টাইম ফরম্যাট ইউটিলিটি
+        function formatTime(secs) {
+            if (isNaN(secs)) return "0:00";
+            const minutes = Math.floor(secs / 60);
+            const seconds = Math.floor(secs % 60);
+            return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
+        }
+
+        // অডিও প্লেয়ার ইঞ্জিন
+        let currentAudio = null;
+        let activeInterval = null;
+
+        function setupAudioPlayer(audioUrl, songTitle) {
+            const playPauseBtn = document.getElementById('detail-play-btn');
+            const playIcon = playPauseBtn.querySelector('i');
+            const seekSlider = document.getElementById('detail-seek-slider');
+            const currentTimeText = document.getElementById('detail-current-time');
+            const durationTimeText = document.getElementById('detail-duration-time');
+            const downloadBtn = document.getElementById('detail-download-btn');
+
+            currentAudio = new Audio(audioUrl);
+            downloadBtn.href = audioUrl;
+            downloadBtn.setAttribute('download', `${songTitle}.mp3`);
+
+            currentAudio.addEventListener('loadedmetadata', () => {
+                durationTimeText.innerText = formatTime(currentAudio.duration);
+            });
+
+            playPauseBtn.addEventListener('click', () => {
+                if (currentAudio.paused) {
+                    currentAudio.play();
+                    playIcon.className = 'fas fa-pause';
+
+                    activeInterval = setInterval(() => {
+                        if (!currentAudio.paused) {
+                            seekSlider.value = (currentAudio.currentTime / currentAudio.duration) * 100 || 0;
+                            currentTimeText.innerText = formatTime(currentAudio.currentTime);
+                        }
+                    }, 500);
+                } else {
+                    currentAudio.pause();
+                    playIcon.className = 'fas fa-play';
+                    clearInterval(activeInterval);
+                }
+            });
+
+            seekSlider.addEventListener('input', () => {
+                const seekTo = currentAudio.duration * (seekSlider.value / 100);
+                currentAudio.currentTime = seekTo;
+                currentTimeText.innerText = formatTime(currentAudio.currentTime);
+            });
+
+            currentAudio.addEventListener('ended', () => {
+                playIcon.className = 'fas fa-play';
+                seekSlider.value = 0;
+                currentTimeText.innerText = "0:00";
+                clearInterval(activeInterval);
+            });
+        }
+
+        // ফায়ারস্টোর থেকে স্পেসিফিক গানের ডাটা ফেচ করার লজিক
+        const songId = getSongIdFromURL();
+
+        if (!songId) {
+            document.getElementById('detail-loader').style.display = 'none';
+            document.getElementById('detail-error').style.display = 'block';
+        } else {
+            db.collection("songs").where("id", "==", Number(songId)).get()
+                .then((querySnapshot) => {
+                    document.getElementById('detail-loader').style.display = 'none';
+
+                    if (querySnapshot.empty) {
+                        return db.collection("songs").doc(songId).get();
+                    } else {
+                        const doc = querySnapshot.docs[0];
+                        renderSongDetail(doc.data());
+                        return null; 
+                    }
+                })
+                .then((doc) => {
+                    if (doc && doc.exists) {
+                        renderSongDetail(doc.data());
+                    } else if (doc) {
+                        document.getElementById('detail-error').style.display = 'block';
+                    }
+                })
+                .catch(err => {
+                    console.error("Error loading song details:", err);
+                    document.getElementById('detail-loader').style.display = 'none';
+                    document.getElementById('detail-error').style.display = 'block';
+                });
+        }
+
+        // স্ক্রিনে ডাটা পুশ করা
+        function renderSongDetail(songData) {
+            document.getElementById('song-detail-content').style.display = 'block';
+
+            const title = songData.title || "শিরোনামহীন গান";
+            const lyrics = songData.lyrics || "এই গানের কোনো লিরিক্স এখনো আপলোড করা হয়নি ভাই।";
+            const thumb = songData.thumbnail_url || "https://via.placeholder.com/100?text=No+Cover";
+            const audio = songData.audio_url || "";
+
+            document.getElementById('detail-song-title').innerText = title;
+            document.getElementById('detail-song-thumb').src = thumb;
+            document.getElementById('detail-song-thumb').alt = title;
+            document.getElementById('detail-lyrics-box').innerText = lyrics;
+
+            document.title = `${title} | লিরিক্স ও এমপি৩ ডাউনলোড | The Sad Station`;
+            const descTag = document.getElementById('dynamic-desc');
+            if (descTag) descTag.setAttribute("content", `${title} মৌলিক গানটি লিরিক্সসহ শুনুন। সরাসরি হাই-কোয়ালিটি অডিও ডাউনলোড করার সুবিধা।`);
+
+            if (audio) {
+                setupAudioPlayer(audio, title);
+            } else {
+                document.querySelector('.custom-audio-player').style.display = 'none';
+                document.getElementById('detail-download-btn').style.display = 'none';
+            }
+        }
+
+        // 👤 Firebase Auth রিয়েল-টাইম লিসেনার ও লগআউট হ্যান্ডলার লজিক ভাই
+        if (window.firebase && firebase.auth) {
+            firebase.auth().onAuthStateChanged((user) => {
+                const logoutBtn = document.getElementById('menu-logout');
+                // গেস্ট অ্যাকাউন্ট 'guest@thesadstation.com' না হলে এবং ইউজার থাকলে বাটন শো করবে
+                if (user && user.email !== 'guest@thesadstation.com') {
+                    if (logoutBtn) logoutBtn.style.display = 'block';
+                } else {
+                    if (logoutBtn) logoutBtn.style.display = 'none';
+                }
+            });
+
+            // লগআউট বাটনে ক্লিক অ্যাকশন সেটআপ
+            const logoutBtn = document.getElementById('menu-logout');
+            if (logoutBtn) {
+                logoutBtn.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    firebase.auth().signOut().then(() => {
+                        alert("সফলভাবে লগআউট করা হয়েছে ভাই!");
+                        window.location.href = "index.html";
+                    }).catch(err => console.error("Logout error:", err));
+                });
+            }
+        }
+    </script>
+</body>
+</html>

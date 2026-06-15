@@ -1,0 +1,276 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>আমার প্রোফাইল | The Sad Station</title>
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <div class="header-top-row">
+                <div class="header-left">
+                    <a href="index.html" style="text-decoration: none; display: flex; align-items: center; color: white;">
+                        <img id="profile-site-logo" src="" alt="The Sad Station Logo" class="site-logo" style="display: none;">
+                        <h1 class="site-title">The Sad Station</h1>
+                    </a>
+                </div>
+                
+                <div class="menu-container">
+                    <button id="three-dot-btn" class="three-dot-btn" aria-label="Menu">⋮</button>
+                    <div id="dropdown-menu" class="dropdown-menu">
+                        <a href="index.html">🏠 হোম</a>
+                        <a href="index.html?mode=favs">❤️ পছন্দের গান</a>
+                        <a href="profile.html">👤 প্রোফাইল</a>
+                        <a href="about.html">ℹ️ আমাদের সম্পর্কে</a>
+                        <a href="terms.html">📜 শর্তাবলী</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="margin-top: 40px; margin-bottom: 60px; max-width: 500px;">
+        
+        <div style="background: #121212; border: 1px solid #1c1c1c; border-radius: 16px; padding: 35px 25px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.5);">
+            
+            <h2 style="color: #fff; font-size: 22px; margin-bottom: 25px; font-weight: 700;">👤 ইউজার প্রোফাইল</h2>
+            
+            <div style="position: relative; width: 120px; height: 120px; margin: 0 auto 20px;">
+                <div id="avatar-container" style="width: 100%; height: 100%; border-radius: 50%; border: 3px solid #1db954; background: #222; display: flex; justify-content: center; align-items: center; overflow: hidden;">
+                    <i id="default-avatar-icon" class="fas fa-user" style="font-size: 55px; color: #555;"></i>
+                    <img id="user-avatar" src="" alt="User Avatar" style="display: none; width: 100%; height: 100%; object-fit: cover;">
+                </div>
+                
+                <label id="upload-label" for="avatar-input" style="position: absolute; bottom: 2px; right: 2px; background: #1db954; color: white; width: 34px; height: 34px; border-radius: 50%; display: flex; justify-content: center; align-items: center; cursor: pointer; border: 2px solid #121212; box-shadow: 0 2px 5px rgba(0,0,0,0.5); transition: transform 0.2s;">
+                    <i class="fas fa-pencil-alt" style="font-size: 13px;"></i>
+                </label>
+                <input type="file" id="avatar-input" accept="image/*" style="display: none;">
+            </div>
+
+            <div id="upload-status" style="display: none; color: #1db954; font-size: 13px; margin-bottom: 15px;">
+                <i class="fas fa-spinner fa-spin"></i> ছবি আপলোড হচ্ছে ভাই, একটু অপেক্ষা করুন...
+            </div>
+
+            <div style="margin-bottom: 25px;">
+                <h3 id="user-name" style="color: #fff; font-size: 19px; margin-bottom: 5px; font-weight: 600;">The Sad Guest</h3>
+                <p id="user-email" style="color: #888; font-size: 14px; margin-bottom: 15px;">guest@thesadstation.com</p>
+                <span id="account-status" style="background: #1c1c1c; color: #888; font-size: 12px; padding: 5px 12px; border-radius: 20px; font-weight: 600; border: 1px solid #252525;">ডেমো অ্যাকাউন্ট (গেস্ট মোড)</span>
+            </div>
+
+            <div id="wishlist-counter-card" style="background: #1c1c1c; border-radius: 12px; padding: 15px; margin-bottom: 25px; border: 1px solid #252525; display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <i class="fas fa-heart" style="color: #e63946; font-size: 20px;"></i>
+                    <span style="color: #ddd; font-size: 15px; font-weight: 500;">পছন্দের গানসমূহ (Wishlist)</span>
+                </div>
+                <span id="wishlist-count" style="background: #e63946; color: white; font-size: 14px; font-weight: 700; padding: 4px 12px; border-radius: 20px;">০ টি</span>
+            </div>
+
+            <hr style="border: 0; border-top: 1px solid #1c1c1c; margin-bottom: 25px;">
+
+            <div id="auth-action-area">
+                <p id="auth-message" style="color: #ffb703; font-size: 14px; margin-bottom: 15px; line-height: 1.5;">আপনার কোনো অ্যাকাউন্ট নেই ভাই! আপনার পছন্দের গানগুলো সেভ রাখতে এখনই সাইন-আপ বা লগইন করুন।</p>
+                <a href="login.html" class="download-btn" style="display: inline-block; width: 100%; box-sizing: border-box; text-decoration: none; padding: 12px; font-size: 15px; font-weight: 700; text-align: center;">
+                    <i class="fas fa-sign-in-alt"></i> লগইন / সাইন আপ করুন
+                </a>
+            </div>
+
+        </div>
+
+    </main>
+
+    <footer>
+        <div class="container" style="text-align: center; padding: 30px 15px;">
+            <div class="social-icons-block" style="margin-bottom: 25px; display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap;">
+                <a id="link-telegram" href="#" target="_blank" style="display: none; color: #0088cc; font-size: 28px;"><i class="fab fa-telegram"></i></a>
+                <a id="link-youtube" href="#" target="_blank" style="display: none; color: #ff0000; font-size: 28px;"><i class="fab fa-youtube"></i></a>
+                <a id="link-facebook" href="#" target="_blank" style="display: none; color: #1877f2; font-size: 28px;"><i class="fab fa-facebook"></i></a>
+                <a id="link-instagram" href="#" target="_blank" style="display: none; color: #c13584; font-size: 28px;"><i class="fab fa-instagram"></i></a>
+                <a id="link-tiktok" href="#" target="_blank" style="display: none; color: #ffffff; font-size: 28px;"><i class="fab fa-tiktok"></i></a>
+            </div>
+
+            <div class="footer-links" style="margin-bottom: 15px;">
+                <a href="about.html" style="text-decoration: none; color: #888; margin: 0 5px;">About Us</a> | 
+                <a href="terms.html" style="text-decoration: none; color: #888; margin: 0 5px;">Terms & Conditions</a> | 
+                <a href="privacy.html" style="text-decoration: none; color: #888; margin: 0 5px;">Privacy Policy</a>
+            </div>
+            <p class="copyright" style="color: #555; font-size: 13px;">Copyright &copy; 2026 The Sad Station. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="config.js"></script>
+    <script>
+        const db = window.db;
+        const IMGBB_API_KEY = "acad51a73d1592f857d31925bf4777a1"; 
+
+        const threeDotBtn = document.getElementById('three-dot-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        if (threeDotBtn && dropdownMenu) {
+            threeDotBtn.addEventListener('click', (e) => {
+                e.stopPropagation();
+                dropdownMenu.classList.toggle('show');
+            });
+            document.addEventListener('click', () => {
+                dropdownMenu.classList.remove('show');
+            });
+        }
+
+        db.collection("site_branding").doc("site_branding").get().then((doc) => {
+            if (doc.exists && doc.data().logo_url) {
+                const logoImg = document.getElementById('profile-site-logo');
+                if (logoImg) {
+                    logoImg.src = doc.data().logo_url;
+                    logoImg.style.display = 'block';
+                }
+            }
+        }).catch(err => console.error("Error logo loading:", err));
+
+        db.collection("site_branding").doc("social_links").get().then((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                const links = {
+                    "link-telegram": data.telegram,
+                    "link-youtube": data.youtube,
+                    "link-facebook": data.facebook,
+                    "link-instagram": data.instagram,
+                    "link-tiktok": data.tiktok
+                };
+                for (const [id, url] of Object.entries(links)) {
+                    const el = document.getElementById(id);
+                    if (url && el) {
+                        el.href = url;
+                        el.style.display = 'inline-block';
+                    }
+                }
+            }
+        }).catch(err => console.error("Error loading social links:", err));
+
+        function handleLogout() {
+            if (window.firebase && firebase.auth) {
+                firebase.auth().signOut().then(() => {
+                    alert("সফলভাবে লগআউট করা হয়েছে ভাই!");
+                    window.location.reload();
+                });
+            }
+        }
+
+        if (window.firebase && firebase.auth) {
+            firebase.auth().onAuthStateChanged((user) => {
+                const avatarImg = document.getElementById('user-avatar');
+                const defaultAvatarIcon = document.getElementById('default-avatar-icon');
+                const nameText = document.getElementById('user-name');
+                const emailText = document.getElementById('user-email');
+                const statusTag = document.getElementById('account-status');
+                const actionArea = document.getElementById('auth-action-area');
+                const wishlistCountEl = document.getElementById('wishlist-count');
+                const avatarInput = document.getElementById('avatar-input');
+                const uploadStatus = document.getElementById('upload-status');
+
+                if (user) {
+                    nameText.innerText = user.displayName || "মৌলিক শ্রোতা";
+                    emailText.innerText = user.email;
+                    statusTag.innerText = "✓ ভেরিফাইড ইউজার";
+                    statusTag.style.background = "#1db954";
+                    statusTag.style.color = "#fff";
+                    statusTag.style.borderColor = "#1db954";
+                    
+                    if (user.photoURL) {
+                        avatarImg.src = user.photoURL;
+                        avatarImg.style.display = 'block';
+                        defaultAvatarIcon.style.display = 'none';
+                    } else {
+                        avatarImg.style.display = 'none';
+                        defaultAvatarIcon.style.display = 'block';
+                    }
+
+                    db.collection("user_favorites")
+                        .where("user_id", "==", user.uid)
+                        .get()
+                        .then((snapshot) => {
+                            wishlistCountEl.innerText = `${snapshot.size} টি`;
+                        })
+                        .catch((err) => {
+                            console.error("Wishlist count error:", err);
+                            wishlistCountEl.innerText = "০ টি";
+                        });
+
+                    if (dropdownMenu && !document.getElementById('menu-logout-btn')) {
+                        const logoutLink = document.createElement('a');
+                        logoutLink.id = 'menu-logout-btn';
+                        logoutLink.href = '#';
+                        logoutLink.innerHTML = '🚪 লগআউট করুন';
+                        logoutLink.style.color = '#ff4d4d';
+                        logoutLink.addEventListener('click', (e) => {
+                            e.preventDefault();
+                            handleLogout();
+                        });
+                        dropdownMenu.appendChild(logoutLink);
+                    }
+
+                    actionArea.innerHTML = `
+                        <button id="profile-logout-btn" class="download-btn" style="display: inline-block; width: 100%; box-sizing: border-box; background: #c1121f; border-color: #c1121f; font-size: 15px; font-weight: 700; cursor: pointer;">
+                            <i class="fas fa-sign-out-alt"></i> লগআউট করুন
+                        </button>
+                    `;
+                    document.getElementById('profile-logout-btn').addEventListener('click', handleLogout);
+
+                    avatarInput.onchange = (e) => {
+                        const file = e.target.files[0];
+                        if (!file) return;
+
+                        uploadStatus.style.display = 'block';
+                        const formData = new FormData();
+                        formData.append('image', file);
+
+                        fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                            method: 'POST',
+                            body: formData
+                        })
+                        .then(res => res.json())
+                        .then(result => {
+                            if (result.success) {
+                                const newImageUrl = result.data.url;
+                                user.updateProfile({ photoURL: newImageUrl }).then(() => {
+                                    db.collection("users").doc(user.uid).set({ photoURL: newImageUrl }, { merge: true }).then(() => {
+                                        avatarImg.src = newImageUrl;
+                                        avatarImg.style.display = 'block';
+                                        defaultAvatarIcon.style.display = 'none';
+                                        uploadStatus.style.display = 'none';
+                                        alert("আপনার প্রোফাইল ছবি সফলভাবে পরিবর্তন করা হয়েছে ভাই! 🎉");
+                                    });
+                                });
+                            } else { throw new Error(); }
+                        })
+                        .catch(() => {
+                            uploadStatus.style.display = 'none';
+                            alert("দুঃখিত ভাই! ছবি আপলোড করতে সমস্যা হয়েছে।");
+                        });
+                    };
+
+                } else {
+                    const existingMenuLogout = document.getElementById('menu-logout-btn');
+                    if (existingMenuLogout) existingMenuLogout.remove();
+
+                    wishlistCountEl.innerText = "০ টি";
+                    avatarImg.style.display = 'none';
+                    defaultAvatarIcon.style.display = 'block';
+                    
+                    avatarInput.onclick = (e) => {
+                        e.preventDefault();
+                        alert("প্রোফাইল ছবি পরিবর্তন করতে হলে প্রথমে লগইন বা সাইন আপ করতে হবে ভাই!");
+                        window.location.href = "login.html";
+                    };
+                }
+            });
+        }
+    </script>
+</body>
+</html>

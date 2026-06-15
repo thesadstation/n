@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Sad Station - Admin Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --bg: #050505; --card: #0d0d0d; --logo-gold: #baa184; }
+        body { background-color: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; display: flex; justify-content: center; align-items: center; min-height: 100vh; }
+        
+        .login-card { background: var(--card); border: 1px solid var(--logo-gold); padding: 30px; border-radius: 14px; width: 100%; max-width: 380px; box-sizing: border-box; text-align: center; }
+        .login-card h2 { color: var(--logo-gold); margin-bottom: 25px; font-size: 1.5rem; }
+        
+        .form-group { margin-bottom: 20px; text-align: left; }
+        .form-group label { display: block; font-size: 0.85rem; color: #aaa; margin-bottom: 6px; }
+        .form-group input { width: 100%; padding: 12px; background: #121212; border: 1px solid var(--logo-gold); border-radius: 8px; color: #fff; box-sizing: border-box; outline: none; transition: 0.3s; }
+        .form-group input:focus { border-color: #fff; }
+        
+        .btn-login { width: 100%; padding: 12px; background: transparent; border: 1px solid var(--logo-gold); border-radius: 8px; color: var(--logo-gold); font-size: 1rem; font-weight: bold; cursor: pointer; transition: 0.3s; margin-top: 10px; }
+        .btn-login:hover { background: var(--logo-gold); color: #050505; }
+        .error-msg { color: #dc3545; font-size: 0.85rem; margin-top: 15px; display: none; }
+    </style>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+</head>
+<body>
+
+    <div class="login-card">
+        <h2><i class="fas fa-lock"></i> এডমিন লগইন</h2>
+        <form id="login-form">
+            <div class="form-group">
+                <label>এডমিন ইমেইল (Admin Email)</label>
+                <input type="email" id="login-email" required placeholder="admin@example.com">
+            </div>
+            <div class="form-group">
+                <label>পাসওয়ার্ড (Password)</label>
+                <input type="password" id="login-password" required placeholder="••••••••">
+            </div>
+            <button type="submit" class="btn-login">🔓 প্রবেশ করুন</button>
+            <div id="error-message" class="error-msg"></div>
+        </form>
+    </div>
+
+    <script src="config.js"></script>
+    <script>
+        const auth = firebase.auth();
+
+        // অলরেডি লগইন থাকলে সরাসরি ড্যাশবোর্ডে নিয়ে যাবে
+        auth.onAuthStateChanged((user) => {
+            if (user) { window.location.href = "admin.html"; }
+        });
+
+        // লগইন ফর্ম সাবমিট হ্যান্ডলার
+        document.getElementById('login-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const email = document.getElementById('login-email').value.trim();
+            const password = document.getElementById('login-password').value;
+            const errorDiv = document.getElementById('error-message');
+
+            errorDiv.style.display = 'none';
+
+            // Firebase Auth দিয়ে সাইন ইন লজিক ভাই
+            auth.signInWithEmailAndPassword(email, password)
+                .then(() => {
+                    window.location.href = "admin.html"; // সফল হলে ড্যাশবোর্ডে রিডাইরেক্ট
+                })
+                .catch((error) => {
+                    errorDiv.innerText = "ভুল ইমেইল বা পাসওয়ার্ড ভাই! আবার চেষ্টা করুন।";
+                    errorDiv.style.display = 'block';
+                    console.error(error);
+                });
+        });
+    </script>
+</body>
+</html>

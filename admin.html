@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Sad Station - Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --bg: #050505; --card: #0d0d0d; --border: #161616; --logo-gold: #baa184; }
+        body { background-color: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
+        
+        .dashboard-wrapper { max-width: 600px; margin: 40px auto; padding: 20px; display: none; }
+        
+        h2 { text-align: center; margin-bottom: 30px; color: var(--logo-gold); }
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px; }
+        .stats-card { background: var(--card); border: 1px solid var(--logo-gold); padding: 20px; border-radius: 12px; text-align: center; }
+        
+        .control-panel-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .grid-item-card { 
+            background: var(--card); 
+            border: 1px solid var(--logo-gold); 
+            padding: 20px; 
+            border-radius: 14px; 
+            text-align: center; 
+            color: #ddd; 
+            text-decoration: none; 
+            transition: 0.3s; 
+            font-size: 0.9rem; 
+            display: block;
+        }
+        .grid-item-card i { font-size: 1.2rem; margin-bottom: 8px; color: var(--logo-gold); }
+        .grid-item-card:hover { border-color: #fff; transform: translateY(-5px); }
+        
+        .logout-btn-container { text-align: center; margin-top: 30px; }
+        .logout-btn { background: transparent; border: 1px solid #dc3545; color: #dc3545; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .logout-btn:hover { background: #dc3545; color: #fff; }
+    </style>
+    
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+    <div id="main-dashboard-content" class="dashboard-wrapper">
+        <h2>ড্যাশবোর্ড</h2>
+        
+        <div class="stats-grid">
+            <div class="stats-card"><div id="total-songs-count" style="font-size:1.5rem; font-weight:bold;">0</div> গান</div>
+            <div class="stats-card"><div id="total-users-count" style="font-size:1.5rem; font-weight:bold;">0</div> ইউজার</div>
+        </div>
+        
+        <div class="control-panel-grid">
+            <a href="admin-logo.html" class="grid-item-card"><i class="fas fa-sliders-h"></i><br>লোগো সেটিংস</a>
+            <a href="admin-songs.html" class="grid-item-card"><i class="fas fa-music"></i><br>গান আপলোড</a>
+            <a href="song-list.html" class="grid-item-card"><i class="fas fa-list"></i><br>সকল গানের তালিকা</a>
+            <a href="admin-users.html" class="grid-item-card"><i class="fas fa-users"></i><br>ইউজার লিস্ট</a>
+            <a href="admin-social.html" class="grid-item-card"><i class="fas fa-share-alt"></i><br>সোশ্যাল লিংক</a>
+            <a href="admin-maintenance.html" class="grid-item-card"><i class="fas fa-tools"></i><br>মেইনটেনেন্স মোড</a>
+            <a href="index.html" target="_blank" class="grid-item-card" style="grid-column: span 2;"><i class="fas fa-home"></i><br>ওয়েবসাইট ভিজিট করুন</a>
+        </div>
+
+        <div class="logout-btn-container">
+            <button class="logout-btn" id="logout-btn"><i class="fas fa-sign-out-alt"></i> লগআউট করুন</button>
+        </div>
+    </div>
+
+    <script src="config.js"></script>
+    <script src="admin.js"></script>
+    <script>
+        const auth = firebase.auth();
+        // 🔒 সিকিউরিটি চেক: ইউজার লগইন আছে কিনা
+        auth.onAuthStateChanged((user) => {
+            if (user) {
+                document.getElementById('main-dashboard-content').style.display = 'block';
+            } else {
+                window.location.href = "admin-login.html";
+            }
+        });
+
+        // 🚪 লগআউট বাটন লজিক
+        document.getElementById('logout-btn').addEventListener('click', () => {
+            auth.signOut().then(() => {
+                window.location.href = "admin-login.html";
+            });
+        });
+    </script>
+</body>
+</html>

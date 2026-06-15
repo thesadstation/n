@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>গোপনীয়তা নীতি | The Sad Station</title>
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Firebase Script -->
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <div class="header-top-row">
+                <div class="header-left">
+                    <a href="index.html" style="text-decoration: none; display: flex; align-items: center; color: white;">
+                        <img id="privacy-site-logo" src="" alt="The Sad Station Logo" class="site-logo" style="display: none; width: 40px; margin-right: 10px;">
+                        <h1 class="site-title">The Sad Station</h1>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="margin-top: 40px; margin-bottom: 60px; line-height: 1.8; color: #ccc; max-width: 500px;">
+        
+        <div style="background: #121212; border: 1px solid #1c1c1c; border-radius: 16px; padding: 40px;">
+            <div style="text-align: center; margin-bottom: 30px;">
+                <a href="index.html" class="download-btn" style="text-decoration: none; padding: 10px 20px; display: inline-block;">🏠 হোম পেজে ফিরে যান</a>
+            </div>
+
+            <h2 style="color: #fff; font-size: 28px; margin-bottom: 20px; border-left: 4px solid #1db954; padding-left: 15px;">গোপনীয়তা নীতি</h2>
+            
+            <p>আপনার তথ্যের নিরাপত্তা আমাদের কাছে অত্যন্ত গুরুত্বপূর্ণ। <strong>The Sad Station</strong> কীভাবে আপনার তথ্য সংগ্রহ এবং ব্যবহার করে তা নিচে দেওয়া হলো:</p>
+            
+            <h3 style="color: #fff; margin-top: 25px;">১. তথ্য সংগ্রহ</h3>
+            <p>আমরা শুধুমাত্র আপনার নাম এবং ইমেইল ঠিকানা সংগ্রহ করি যা রেজিস্ট্রেশনের সময় আপনি নিজেই প্রদান করেন। এটি আপনার ইউজার অ্যাকাউন্ট বজায় রাখার জন্য প্রয়োজন।</p>
+
+            <h3 style="color: #fff; margin-top: 25px;">২. তথ্যের ব্যবহার</h3>
+            <p>আপনার প্রদান করা তথ্য শুধুমাত্র আপনার পছন্দের গানের তালিকা (Wishlist) সংরক্ষণ এবং আপনার অ্যাকাউন্টের ব্যক্তিগত অভিজ্ঞতা উন্নত করার জন্য ব্যবহার করা হয়।</p>
+
+            <h3 style="color: #fff; margin-top: 25px;">৩. তথ্যের সুরক্ষা</h3>
+            <p>আপনার ব্যক্তিগত তথ্য কোনো তৃতীয় পক্ষের কাছে বিক্রি বা শেয়ার করা হয় না। আমরা ফায়ারবেস (Firebase) এর নিরাপদ অথেন্টিকেশন সিস্টেম ব্যবহার করি আপনার একাউন্ট সুরক্ষিত রাখতে।</p>
+
+            <h3 style="color: #fff; margin-top: 25px;">৪. কুকিজ (Cookies)</h3>
+            <p>আমরা সাইটটি ভালোভাবে চালানোর জন্য ছোটখাটো কুকিজ ব্যবহার করতে পারি, যা শুধুমাত্র আপনার ব্রাউজিং অভিজ্ঞতা সহজ করার জন্য ব্যবহৃত হয়।</p>
+        </div>
+    </main>
+
+    <script src="config.js"></script>
+    <script>
+        // লোগো লোড করার স্ক্রিপ্ট
+        const db = window.db;
+        db.collection("site_branding").doc("site_branding").get().then((doc) => {
+            if (doc.exists && doc.data().logo_url) {
+                const logoImg = document.getElementById('privacy-site-logo');
+                if (logoImg) {
+                    logoImg.src = doc.data().logo_url;
+                    logoImg.style.display = 'block';
+                }
+            }
+        }).catch(err => console.error("Error loading logo:", err));
+    </script>
+
+    <footer style="text-align: center; padding: 30px 15px; color: #555; font-size: 13px;">
+        <p>Copyright &copy; 2026 The Sad Station. All Rights Reserved.</p>
+    </footer>
+
+</body>
+</html>
