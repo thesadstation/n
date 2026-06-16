@@ -7,9 +7,17 @@
     
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <!-- Firebase Script -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    
+    <style>
+        .profile-img { width: 150px; height: 150px; border-radius: 50%; object-fit: cover; border: 3px solid #baa184; margin-bottom: 15px; }
+        .about-card { background: #121212; border: 1px solid #1c1c1c; border-radius: 16px; padding: 40px; }
+        .download-btn { background: transparent; border: 1px solid #baa184; color: #baa184; border-radius: 8px; transition: 0.3s; }
+        .download-btn:hover { background: #baa184; color: #050505; }
+    </style>
 </head>
 <body>
 
@@ -26,34 +34,46 @@
         </div>
     </header>
 
-    <main class="container" style="margin-top: 40px; margin-bottom: 60px; line-height: 1.8; color: #ccc; max-width: 500px;">
+    <main class="container" style="margin-top: 40px; margin-bottom: 60px; line-height: 1.8; color: #ccc; max-width: 600px;">
         
-        <div style="background: #121212; border: 1px solid #1c1c1c; border-radius: 16px; padding: 40px;">
-            <!-- বাটন উপরে সরানো হয়েছে -->
+        <div class="about-card">
+            <!-- হোম পেজে ফেরার বাটন -->
             <div style="text-align: center; margin-bottom: 30px;">
                 <a href="index.html" class="download-btn" style="text-decoration: none; padding: 10px 20px; display: inline-block;">🏠 হোম পেজে ফিরে যান</a>
             </div>
 
-            <h2 style="color: #fff; font-size: 28px; margin-bottom: 20px; border-left: 4px solid #1db954; padding-left: 15px;">আমাদের সম্পর্কে</h2>
+            <!-- ব্যক্তিগত পরিচিতি -->
+            <div style="text-align: center; margin-bottom: 40px; border-bottom: 1px solid #333; padding-bottom: 30px;">
+                <!-- এখানে আপনার ImgBB থেকে পাওয়া লিঙ্কটি বসান -->
+                <img src="https://i.ibb.co.com/GGVZcQ3/1764165659574.jpg" alt="Md Atik Rahman" class="profile-img"> 
+                <h2 style="color: #baa184; margin: 10px 0;">Md Atik Rahman</h2>
+                <p style="font-style: italic; color: #baa184;">সৃজনশীল মিউজিক মেকার, গীতিকার ও ওয়েব ডেভেলপার</p>
+                <p style="font-size: 1rem; color: #ddd; max-width: 500px; margin: 20px auto; line-height: 1.6;">
+                    আমি বিশ্বাস করি, প্রতিটি মানুষের মনের গভীরে এমন কিছু অব্যক্ত কথা থাকে যা শুধু সুরের মাধ্যমেই প্রকাশ করা সম্ভব। আমি সেই সুরগুলোকে শব্দে এবং গানে রূপ দেওয়ার চেষ্টা করি। একজন ওয়েব ডেভেলপার হিসেবে প্রযুক্তি আর সংগীতকে একসূত্রে গেঁথে এই প্ল্যাটফর্মটি তৈরি করেছি।
+                </p>
+            </div>
+
+            <!-- বিস্তারিত পরিচিতি -->
+            <h2 style="color: #fff; font-size: 24px; margin-bottom: 20px; border-left: 4px solid #baa184; padding-left: 15px;">আমাদের সম্পর্কে</h2>
+            <p style="margin-bottom: 15px;"><strong>The Sad Station</strong> শুধুমাত্র একটি ওয়েবসাইট নয়, এটি একটি অনুভূতি। যখন চারপাশটা নিস্তব্ধ হয়ে আসে, যখন একাকীত্ব সঙ্গী হয়, ঠিক তখনই আমাদের এই স্টেশন আপনাকে সঙ্গী দিতে চায়। আমার লেখা এবং সুর করা মৌলিক গানগুলো এখানে সংরক্ষিত আছে।</p>
             
-            <p><strong>The Sad Station</strong> একটি মিউজিক প্ল্যাটফর্ম যা মূলত আবেগপ্রবণ এবং মৌলিক গানের শ্রোতাদের জন্য তৈরি করা হয়েছে। আমাদের লক্ষ্য হলো যারা একাকীত্ব বা বিষণ্ণতায় ডুবে থাকতে ভালোবাসেন, তাদের জন্য একটি প্রশান্তিময় অডিও জগত তৈরি করা।</p>
-            
-            <h3 style="color: #fff; margin-top: 30px; margin-bottom: 15px;">আমরা কেন আলাদা?</h3>
-            <ul style="margin-bottom: 20px; padding-left: 20px;">
-                <li>উচ্চমানের অডিও কোয়ালিটি যা শ্রোতাদের পূর্ণ তৃপ্তি দেয়।</li>
-                <li>সহজ এবং ইউজার-ফ্রেন্ডলি ইন্টারফেস, যাতে আপনি যেকোনো সময় আপনার পছন্দের গান খুঁজে পেতে পারেন।</li>
-                <li>মৌলিক বাংলা গানের একটি বিশাল সংগ্রহ যা অন্য কোথাও খুঁজে পাওয়া কঠিন।</li>
-                <li>আমরা বিশ্বাস করি গান হলো মনের আয়না, আর সেই আয়নার প্রতিফলনই আমাদের এই স্টেশন।</li>
+            <h3 style="color: #baa184; margin-top: 30px; margin-bottom: 15px;">আমাদের মূল লক্ষ্য:</h3>
+            <ul style="margin-bottom: 20px; padding-left: 20px; color: #ccc;">
+                <li style="margin-bottom: 10px;"><strong>বিশুদ্ধ আবেগ:</strong> মনের অব্যক্ত কষ্ট ও ভালোবাসার গল্পগুলোকে গানে রূপ দেওয়া।</li>
+                <li style="margin-bottom: 10px;"><strong>মৌলিকত্ব:</strong> বাজারের গতানুগতিক গানের ভিড়ে নিজের স্বকীয়তা বজায় রাখা।</li>
+                <li style="margin-bottom: 10px;"><strong>সহজলভ্যতা:</strong> হাই-কোয়ালিটি অডিও ফাইল এবং লিরিক্সের সহজ প্রাপ্তি।</li>
             </ul>
 
-            <h3 style="color: #fff; margin-top: 30px; margin-bottom: 15px;">আমাদের লক্ষ্য</h3>
-            <p>আমাদের একমাত্র লক্ষ্য হলো বাংলা মিউজিক ইন্ডাস্ট্রিতে নতুন ধারার মৌলিক গানগুলোকে তুলে ধরা এবং একটি সুস্থ ও সুন্দর মিউজিক প্ল্যাটফর্ম হিসেবে নিজেকে প্রতিষ্ঠিত করা। আপনার ভালোবাসা ও সমর্থনই আমাদের এগিয়ে চলার মূল শক্তি।</p>
+            <h3 style="color: #baa184; margin-top: 30px; margin-bottom: 15px;">কেন আমি গান করি?</h3>
+            <p style="color: #ccc; line-height: 1.8;">
+                গান আমার কাছে কোনো পেশা নয়, এটি আমার বেঁচে থাকার শক্তি। 'The Sad Station' আমার যাত্রার সাক্ষী। প্রতিটি গানে আমার হৃদয়ের এক টুকরো আবেগ মিশে থাকে। আশা করি, আমার গানগুলো শুনে আপনারা নিজেদের মনের মিল খুঁজে পাবেন।
+            </p>
         </div>
     </main>
 
+    <!-- লোগো লোড করার স্ক্রিপ্ট -->
     <script src="config.js"></script>
     <script>
-        // লোগো লোড করার স্ক্রিপ্ট
         const db = window.db;
         db.collection("site_branding").doc("site_branding").get().then((doc) => {
             if (doc.exists && doc.data().logo_url) {
