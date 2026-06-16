@@ -19,7 +19,6 @@
             padding: 20px; 
         }
         
-        /* সিকিউরিটি চেক কমপ্লিট হওয়ার আগে পুরো ফর্ম হাইড রাখার জন্য */
         .wrapper { 
             max-width: 600px; 
             margin: 30px auto; 
@@ -27,7 +26,7 @@
             background: var(--card); 
             border: 1px solid var(--logo-gold); 
             border-radius: 14px; 
-            display: none;
+            display: none; /* সিকিউরিটি চেকের জন্য */
         }
         
         .back-btn { 
@@ -71,6 +70,10 @@
             transition: 0.3s; 
             font-family: inherit;
         }
+        /* ফাইল ইনপুট এর স্টাইল */
+        input[type="file"] {
+            padding: 8px;
+        }
         .form-group input:focus, .form-group textarea:focus { 
             border-color: #fff; 
         }
@@ -91,6 +94,10 @@
             background: var(--logo-gold); 
             color: #050505; 
         }
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
     </style>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
@@ -106,24 +113,24 @@
         
         <form id="add-song-form">
             <div class="form-group">
-                <label>গানের সিরিয়াল আইডি (ID - শুধুমাত্র সংখ্যা)</label>
+                <label>গানের সিরিয়াল আইডি (ID)</label>
                 <input type="number" id="song-id" required placeholder="যেমন: 1, 2, 3...">
             </div>
             <div class="form-group">
-                <label>গানের শিরোনাম (Song Title)</label>
+                <label>গানের শিরোনাম</label>
                 <input type="text" id="song-title" required placeholder="গানের নাম লিখুন...">
             </div>
             <div class="form-group">
-                <label>থাম্বনেইল ইমেজ ইউআরএল (Thumbnail URL)</label>
-                <input type="url" id="song-thumbnail" required placeholder="https://example.com/cover.jpg">
+                <label>থাম্বনেইল ইমেজ (ফাইল সিলেক্ট করুন)</label>
+                <input type="file" id="song-thumbnail" accept="image/*" required>
             </div>
             <div class="form-group">
                 <label>অডিও ফাইল ইউআরএল (Audio Direct Link)</label>
                 <input type="url" id="song-audio" required placeholder="https://files.catbox.moe/song.mp3">
             </div>
             <div class="form-group">
-                <label>গানের লিরিক্স (Lyrics)</label>
-                <textarea id="song-lyrics" rows="6" placeholder="এখানে সম্পূর্ণ লিরিক্স পেস্ট করুন ভাই..."></textarea>
+                <label>গানের লিরিক্স</label>
+                <textarea id="song-lyrics" rows="6" placeholder="এখানে লিরিক্স পেস্ট করুন..."></textarea>
             </div>
             <button type="submit" class="btn-submit">🚀 গানটি লাইভ করুন</button>
         </form>
