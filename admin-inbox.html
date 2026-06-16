@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>মেসেজ ইনবক্স | Admin Panel</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --bg: #050505; --card: #0d0d0d; --logo-gold: #baa184; }
+        body { background-color: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        .container { max-width: 900px; margin: 0 auto; }
+        table { width: 100%; border-collapse: collapse; background: var(--card); margin-top: 20px; border: 1px solid #222; }
+        th, td { padding: 15px; border-bottom: 1px solid #222; text-align: left; }
+        th { color: var(--logo-gold); }
+        .clickable-row { cursor: pointer; transition: 0.2s; }
+        .clickable-row:hover { background: #1a1a1a; }
+        .del-btn { color: #ff4d4d; cursor: pointer; padding: 5px 10px; }
+        
+        /* মডাল স্টাইল */
+        .modal { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.8); justify-content: center; align-items: center; }
+        .modal-content { background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid var(--logo-gold); width: 90%; max-width: 500px; position: relative; }
+        .close-btn { position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 20px; color: #888; }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <a href="admin.html" style="color: var(--logo-gold); text-decoration: none;"><i class="fas fa-arrow-left"></i> ড্যাশবোর্ড</a>
+        <h2>মেসেজ ইনবক্স</h2>
+        
+        <table>
+            <thead>
+                <tr>
+                    <th>নাম</th>
+                    <th>ইমেইল</th>
+                    <th>সময়</th>
+                    <th>অ্যাকশন</th>
+                </tr>
+            </thead>
+            <tbody id="messages-body">
+                </tbody>
+        </table>
+    </div>
+
+    <div id="msg-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn" onclick="closeModal()">&times;</span>
+            <h3 style="color: var(--logo-gold);">পুরো বার্তাটি:</h3>
+            <p id="full-message" style="background: #000; padding: 15px; border-radius: 8px; border: 1px solid #333;"></p>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="config.js"></script>
+    <script>
+        const db = window.db;
+        const messagesBody = document.getElementById('messages-body');
+        const modal = document.getElementById('msg-modal');
+
+        // ডাটা লোড করা
+        function loadMessages() {
+            db.collection("messages").orderBy("timestamp", "desc").get().then((snapshot) => {
+                messagesBody.innerHTML = '';
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    const date = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString('bn-BD') : 'N/A';
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="clickable-row" onclick="showMessage('${data.message.replace(/'/g, "\\'")}')">${data.name}</td>
+                        <td class="clickable-row" onclick="showMessage('${data.message.replace(/'/g, "\\'")}')">${data.email}</td>
+                        <td class="clickable-row" onclick="showMessage('${data.message.replace(/'/g, "\\'")}')">${date}</td>
+                        <td><i class="fas fa-trash-alt del-btn" onclick="deleteMessage('${doc.id}')"></i></td>
+                    `;
+                    messagesBody.appendChild(tr);
+                });
+            });
+        }
+
+        // মেসেজ ডিলিট করার ফাংশন
+        function deleteMessage(id) {
+            if(confirm("আপনি কি এই বার্তাটি ডিলিট করতে চান?")) {
+                db.collection("messages").doc(id).delete().then(() => {
+                    loadMessages(); // লিস্টটি আপডেট করার জন্য
+                });
+            }
+        }
+
+        // মডাল ফাংশন
+        function showMessage(msg) {
+            document.getElementById('full-message').innerText = msg;
+            modal.style.display = 'flex';
+        }
+        function closeModal() { modal.style.display = 'none'; }
+        window.onclick = (e) => { if(e.target == modal) closeModal(); }
+
+        loadMessages();
+    </script>
+</body>
+</html>
