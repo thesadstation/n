@@ -4,41 +4,28 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Sad Station - Admin Panel</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <style>
-        :root { --bg: #050505; --card: #0d0d0d; --border: #161616; --logo-gold: #baa184; }
-        body { background-color: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
-        
-        .dashboard-wrapper { max-width: 600px; margin: 40px auto; padding: 20px; display: none; }
-        
-        h2 { text-align: center; margin-bottom: 30px; color: var(--logo-gold); }
-        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px; }
-        .stats-card { background: var(--card); border: 1px solid var(--logo-gold); padding: 20px; border-radius: 12px; text-align: center; }
-        
-        .control-panel-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
-        .grid-item-card { 
-            background: var(--card); 
-            border: 1px solid var(--logo-gold); 
-            padding: 20px; 
-            border-radius: 14px; 
-            text-align: center; 
-            color: #ddd; 
-            text-decoration: none; 
-            transition: 0.3s; 
-            font-size: 0.9rem; 
-            display: block;
-        }
-        .grid-item-card i { font-size: 1.2rem; margin-bottom: 8px; color: var(--logo-gold); }
-        .grid-item-card:hover { border-color: #fff; transform: translateY(-5px); }
-        
-        .logout-btn-container { text-align: center; margin-top: 30px; }
-        .logout-btn { background: transparent; border: 1px solid #dc3545; color: #dc3545; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
-        .logout-btn:hover { background: #dc3545; color: #fff; }
-    </style>
     
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="config.js"></script>
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        :root { --bg: #050505; --card: #0d0d0d; --border: #161616; --logo-gold: #baa184; }
+        body { background-color: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
+        .dashboard-wrapper { max-width: 600px; margin: 40px auto; padding: 20px; display: none; }
+        h2 { text-align: center; margin-bottom: 30px; color: var(--logo-gold); }
+        .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 30px; }
+        .stats-card { background: var(--card); border: 1px solid var(--logo-gold); padding: 20px; border-radius: 12px; text-align: center; }
+        .control-panel-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; }
+        .grid-item-card { background: var(--card); border: 1px solid var(--logo-gold); padding: 20px; border-radius: 14px; text-align: center; color: #ddd; text-decoration: none; transition: 0.3s; font-size: 0.9rem; display: block; }
+        .grid-item-card i { font-size: 1.2rem; margin-bottom: 8px; color: var(--logo-gold); }
+        .grid-item-card:hover { border-color: #fff; transform: translateY(-5px); }
+        .logout-btn-container { text-align: center; margin-top: 30px; }
+        .logout-btn { background: transparent; border: 1px solid #dc3545; color: #dc3545; padding: 10px 20px; border-radius: 8px; cursor: pointer; transition: 0.3s; }
+        .logout-btn:hover { background: #dc3545; color: #fff; }
+    </style>
 </head>
 <body>
 
@@ -66,25 +53,27 @@
         </div>
     </div>
 
-    <script src="config.js"></script>
-    <script src="admin.js"></script>
     <script>
-        const auth = firebase.auth();
-        // 🔒 সিকিউরিটি চেক: ইউজার লগইন আছে কিনা
-        auth.onAuthStateChanged((user) => {
-            if (user) {
-                document.getElementById('main-dashboard-content').style.display = 'block';
-            } else {
+        const MY_ADMIN_EMAIL = "atik89084@gmail.com"; 
+
+        firebase.auth().onAuthStateChanged((user) => {
+            if (!user) {
                 window.location.href = "admin-login.html";
+            } else if (user.email !== MY_ADMIN_EMAIL) {
+                alert("দুঃখিত, আপনি এই পেজে ঢোকার অনুমতি নেই!");
+                window.location.href = "index.html";
+            } else {
+                // অনুমতি থাকলে কন্টেন্ট দেখাও
+                document.getElementById('main-dashboard-content').style.display = 'block';
             }
         });
 
-        // 🚪 লগআউট বাটন লজিক
         document.getElementById('logout-btn').addEventListener('click', () => {
-            auth.signOut().then(() => {
+            firebase.auth().signOut().then(() => {
                 window.location.href = "admin-login.html";
             });
         });
     </script>
+    <script src="admin.js"></script>
 </body>
 </html>
