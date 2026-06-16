@@ -3,46 +3,77 @@ document.addEventListener('DOMContentLoaded', () => {
     const db = window.db;
     const uploadForm = document.getElementById('add-song-form');
     const wrapperDiv = document.getElementById('song-upload-wrapper');
+    
+    // আপনার ImgBB API Key এখানে বসান
+    const IMGBB_API_KEY = 'acad51a73d1592f857d31925bf4777a1'; 
 
-    // 🔒 সিকিউরিটি চেক: লগইন না থাকলে সোজা লগইন পেজে ধাক্কা মারো
+    // লগইন চেক
     auth.onAuthStateChanged((user) => {
         if (user) {
-            // লগইন থাকলে ফর্ম ডিসপ্লে করো ভাই
             if (wrapperDiv) wrapperDiv.style.display = 'block';
         } else {
             window.location.href = "login.html";
         }
     });
 
-    // 🚀 গান আপলোড ফর্ম সাবমিট হ্যান্ডলিং লজিক
+    // ফর্ম সাবমিট হ্যান্ডলিং
     if (uploadForm) {
-        uploadForm.addEventListener('submit', (e) => {
+        uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
 
-            // ফর্মে ইনপুট করা ডাটা রিসিভ করা ভাই
-            const songId = parseInt(document.getElementById('song-id').value);
-            const title = document.getElementById('song-title').value.trim();
-            const thumbnailUrl = document.getElementById('song-thumbnail').value.trim();
-            const audioUrl = document.getElementById('song-audio').value.trim();
-            const lyrics = document.getElementById('song-lyrics').value.trim();
+            const imageInput = document.getElementById('song-thumbnail');
+            const file = imageInput.files[0];
 
-            // ফায়ারস্টোরের "songs" কালেকশনে নতুন ডাটা অ্যাড করা
-            db.collection("songs").add({
-                id: songId,
-                title: title,
-                thumbnail_url: thumbnailUrl,
-                audio_url: audioUrl,
-                lyrics: lyrics,
-                timestamp: firebase.firestore.FieldValue.serverTimestamp() // ফিল্টারিং করার সুবিধার্থে টাইমস্ট্যাম্প
-            })
-            .then(() => {
-                alert("ভাই, গানটি সফলভাবে ডাটাবেজে লাইভ করা হয়েছে! 🎉");
-                uploadForm.reset(); // আপলোড শেষে ফর্ম খালি করে দেওয়া ভাই
-            })
-            .catch((error) => {
-                console.error("Error uploading song:", error);
-                alert("দুঃখিত ভাই, গানটি সেভ করা যায়নি। আবার ট্রাই করুন।");
-            });
+            if (!file) {
+                alert("দয়া করে একটি ইমেজ সিলেক্ট করুন!");
+                return;
+            }
+
+            // বাটন ডিজেবল করে দিন যাতে ডাবল ক্লিক না হয়
+            const submitBtn = uploadForm.querySelector('button');
+            submitBtn.disabled = true;
+            submitBtn.innerText = "আপলোড হচ্ছে...";
+
+            // ১. ImgBB-তে ইমেজ আপলোড
+            const formData = new FormData();
+            formData.append('image', file);
+
+            try {
+                const response = await fetch(`https://api.imgbb.com/1/upload?key=${IMGBB_API_KEY}`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+
+                if (!result.success) throw new Error("ইমেজ আপলোড ব্যর্থ হয়েছে!");
+
+                const thumbnailUrl = result.data.url;
+
+                // ২. Firestore-এ ডাটা সেভ করা
+                const songId = parseInt(document.getElementById('song-id').value);
+                const title = document.getElementById('song-title').value.trim();
+                const audioUrl = document.getElementById('song-audio').value.trim();
+                const lyrics = document.getElementById('song-lyrics').value.trim();
+
+                await db.collection("songs").add({
+                    id: songId,
+                    title: title,
+                    thumbnail_url: thumbnailUrl,
+                    audio_url: audioUrl,
+                    lyrics: lyrics,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+
+                alert("ভাই, গান এবং থাম্বনেইল সফলভাবে ডাটাবেজে লাইভ করা হয়েছে! 🎉");
+                uploadForm.reset();
+            } catch (error) {
+                console.error("Error:", error);
+                alert("দুঃখিত ভাই, কিছু একটা সমস্যা হয়েছে: " + error.message);
+            } finally {
+                submitBtn.disabled = false;
+                submitBtn.innerText = "আপলোড করুন";
+            }
         });
     }
 });
