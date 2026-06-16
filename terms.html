@@ -7,9 +7,11 @@
     
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Firebase Script -->
+    
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="config.js"></script>
 </head>
 <body>
 
@@ -19,9 +21,21 @@
                 <div class="header-left" style="display: flex; align-items: center;">
                     <a href="index.html" style="text-decoration: none; color: white; margin-right: 15px; font-size: 20px;"><i class="fas fa-arrow-left"></i></a>
                     <a href="index.html" style="text-decoration: none; display: flex; align-items: center; color: white;">
-                        <img id="terms-site-logo" src="" alt="The Sad Station Logo" class="site-logo" style="display: none; width: 40px; margin-right: 10px;">
+                        <img id="detail-site-logo" src="" alt="The Sad Station Logo" class="site-logo" style="display: none;">
                         <h1 class="site-title">The Sad Station</h1>
                     </a>
+                </div>
+                
+                <div class="menu-container">
+                    <button id="three-dot-btn" class="three-dot-btn" aria-label="Menu" style="font-size: 24px; padding: 0 10px; background: none; border: none; color: white; cursor: pointer;">☰</button>
+                    <div id="dropdown-menu" class="dropdown-menu">
+                        <a href="index.html">🏠 হোম</a>
+                        <a href="wishlist.html?mode=favs">❤️ পছন্দের গান</a>
+                        <a href="profile.html">👤 প্রোফাইল</a>
+                        <a href="about.html">ℹ️ আমাদের সম্পর্কে</a>
+                        <a href="terms.html">📜 শর্তাবলী</a>
+                        <a href="#" id="menu-logout" class="menu-logout-btn" style="display: none; color: #ff4d4d;"><i class="fas fa-sign-out-alt"></i> লগআউট</a>
+                    </div>
                 </div>
             </div>
         </div>
@@ -49,24 +63,64 @@
         </div>
     </main>
 
-    <script src="config.js"></script>
-    <script>
-        // লোগো লোড করার স্ক্রিপ্ট
-        const db = window.db;
-        db.collection("site_branding").doc("site_branding").get().then((doc) => {
-            if (doc.exists && doc.data().logo_url) {
-                const logoImg = document.getElementById('terms-site-logo');
-                if (logoImg) {
-                    logoImg.src = doc.data().logo_url;
-                    logoImg.style.display = 'block';
-                }
-            }
-        }).catch(err => console.error("Error loading logo:", err));
-    </script>
-
-    <footer style="text-align: center; padding: 30px 15px; color: #555; font-size: 13px;">
-        <p>Copyright &copy; 2026 The Sad Station. All Rights Reserved.</p>
+    <footer>
+        <div class="container" style="text-align: center; padding: 30px 15px;">
+            <div class="social-icons-block" style="margin-bottom: 25px; display: flex; justify-content: center; align-items: center; gap: 20px; flex-wrap: wrap;">
+                <a id="link-telegram" href="#" target="_blank" style="display: none; color: #0088cc; font-size: 28px;"><i class="fab fa-telegram"></i></a>
+                <a id="link-youtube" href="#" target="_blank" style="display: none; color: #ff0000; font-size: 28px;"><i class="fab fa-youtube"></i></a>
+                <a id="link-facebook" href="#" target="_blank" style="display: none; color: #1877f2; font-size: 28px;"><i class="fab fa-facebook"></i></a>
+                <a id="link-instagram" href="#" target="_blank" style="display: none; color: #c13584; font-size: 28px;"><i class="fab fa-instagram"></i></a>
+                <a id="link-tiktok" href="#" target="_blank" style="display: none; color: #ffffff; font-size: 28px;"><i class="fab fa-tiktok"></i></a>
+            </div>
+            <div class="footer-links" style="margin-bottom: 15px;">
+                <a href="about.html" style="text-decoration: none; color: #888; margin: 0 5px;">About Us</a> | 
+                <a href="terms.html" style="text-decoration: none; color: #888; margin: 0 5px;">Terms & Conditions</a> | 
+                <a href="privacy.html" style="text-decoration: none; color: #888; margin: 0 5px;">Privacy Policy</a> |
+                <a href="contact.html" style="text-decoration: none; color: #888; margin: 0 5px;">Contact Us</a>
+            </div>
+            <p class="copyright" style="color: #555; font-size: 13px;">Copyright &copy; 2026 The Sad Station. All Rights Reserved.</p>
+        </div>
     </footer>
 
+    <script>
+        const db = window.db;
+
+        // মেনু লজিক
+        const threeDotBtn = document.getElementById('three-dot-btn');
+        const dropdownMenu = document.getElementById('dropdown-menu');
+        threeDotBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('show'); });
+        document.addEventListener('click', () => dropdownMenu.classList.remove('show'));
+
+        // লোগো ও সোশ্যাল লিংক লোড
+        db.collection("site_branding").doc("site_branding").get().then((doc) => {
+            if (doc.exists && doc.data().logo_url) {
+                const logoImg = document.getElementById('detail-site-logo');
+                if(logoImg) { logoImg.src = doc.data().logo_url; logoImg.style.display = 'block'; }
+            }
+        });
+
+        db.collection("site_branding").doc("social_links").get().then((doc) => {
+            if (doc.exists) {
+                const data = doc.data();
+                const links = { "link-telegram": data.telegram, "link-youtube": data.youtube, "link-facebook": data.facebook, "link-instagram": data.instagram, "link-tiktok": data.tiktok };
+                for (const [id, url] of Object.entries(links)) {
+                    const el = document.getElementById(id);
+                    if (url && el) { el.href = url; el.style.display = 'inline-block'; }
+                }
+            }
+        });
+
+        // লগআউট লজিক
+        firebase.auth().onAuthStateChanged((user) => {
+            const logoutBtn = document.getElementById('menu-logout');
+            if (user && user.email !== 'guest@thesadstation.com') {
+                if (logoutBtn) logoutBtn.style.display = 'block';
+            }
+        });
+        document.getElementById('menu-logout')?.addEventListener('click', (e) => {
+            e.preventDefault();
+            firebase.auth().signOut().then(() => { window.location.href = "index.html"; });
+        });
+    </script>
 </body>
 </html>
