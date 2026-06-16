@@ -54,10 +54,10 @@
             </a>
         </div>
 
-        <div id="detail-loader" class="loader" style="text-align: center; padding: 50px;">গানের লিরিক্স ও ফাইল লোড হচ্ছে ভাই...</div>
+        <div id="detail-loader" class="loader" style="text-align: center; padding: 50px;">গানের লিরিক্স লোড হচ্ছে</div>
 
         <div id="detail-error" style="display: none; text-align: center; color: #888; padding: 40px;">
-            <p>দুঃখিত ভাই, এই গানটি খুঁজে পাওয়া যায়নি! 🔍</p>
+            <p>দুঃখিত, এই গানটি খুঁজে পাওয়া যায়নি! 🔍</p>
         </div>
 
         <div id="song-detail-content" style="display: none;">
@@ -119,7 +119,7 @@
     <script>
         const db = window.db;
 
-        // ৩-ডট মেনু ওপেন/ক্লোজ লজিক ভাই
+        
         const threeDotBtn = document.getElementById('three-dot-btn');
         const dropdownMenu = document.getElementById('dropdown-menu');
         if (threeDotBtn && dropdownMenu) {
@@ -132,7 +132,7 @@
             });
         }
 
-        // লোগো ব্র্যান্ডিং লোড লজিক
+        
         db.collection("site_branding").doc("site_branding").get().then((doc) => {
             if (doc.exists && doc.data().logo_url) {
                 const logoImg = document.getElementById('detail-site-logo');
@@ -143,7 +143,7 @@
             }
         }).catch(err => console.error("Error logo loading:", err));
 
-        // 🔗 ডাটাবেজ থেকে সোশ্যাল ও টেলিগ্রাম লিংক ফুটারের আইকনগুলোতে লোড করার লজিক ভাই
+        
         db.collection("site_branding").doc("social_links").get().then((doc) => {
             if (doc.exists) {
                 const data = doc.data();
@@ -165,13 +165,13 @@
             }
         }).catch(err => console.error("Error loading social links:", err));
 
-        // ইউআরএল প্যারামিটার থেকে আইডি বের করার লজিক
+        
         function getSongIdFromURL() {
             const params = new URLSearchParams(window.location.search);
             return params.get('id');
         }
 
-        // টাইম ফরম্যাট ইউটিলিটি
+       
         function formatTime(secs) {
             if (isNaN(secs)) return "0:00";
             const minutes = Math.floor(secs / 60);
@@ -308,7 +308,7 @@
                 logoutBtn.addEventListener('click', (e) => {
                     e.preventDefault();
                     firebase.auth().signOut().then(() => {
-                        alert("সফলভাবে লগআউট করা হয়েছে ভাই!");
+                        alert("সফলভাবে লগআউট করা হয়েছে!");
                         window.location.href = "index.html";
                     }).catch(err => console.error("Logout error:", err));
                 });
@@ -317,3 +317,4 @@
     </script>
 </body>
 </html>
+                    
