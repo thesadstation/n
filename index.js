@@ -7,12 +7,12 @@ let filteredSongs = [];
 let userFavorites = []; 
 let currentUser = null; 
 
-// ৩-ডট মেনু লজিক
-const threeDotBtn = document.getElementById('three-dot-btn');
+// মেনু টগল লজিক (৩-লাইন মেনু)
+const menuToggleBtn = document.getElementById('menu-toggle-btn');
 const dropdownMenu = document.getElementById('dropdown-menu');
 
-if (threeDotBtn && dropdownMenu) {
-    threeDotBtn.addEventListener('click', (e) => {
+if (menuToggleBtn && dropdownMenu) {
+    menuToggleBtn.addEventListener('click', (e) => {
         e.stopPropagation();
         dropdownMenu.classList.toggle('show');
     });
@@ -21,7 +21,7 @@ if (threeDotBtn && dropdownMenu) {
     });
 }
 
-// 🔍 সার্চ লজিক (আপডেট করা হয়েছে)
+// 🔍 সার্চ লজিক
 const searchInput = document.getElementById('search-input');
 const noResults = document.getElementById('no-results');
 
@@ -146,6 +146,7 @@ function renderSongs() {
         const isFav = userFavorites.includes(String(song.id));
         const songCard = document.createElement('div');
         songCard.className = 'song-card';
+        songCard.setAttribute('data-id', song.id); // গান শনাক্ত করার জন্য ID যোগ করা হলো
         songCard.innerHTML = `
             <div class="song-header-meta">
                 <img class="song-thumb" src="${song.thumbnail_url}" alt="${song.title}">
@@ -223,8 +224,21 @@ async function initializePlatform() {
             userFavorites = [];
         }
         renderSongs();
+        
+        // অটো-প্লে লজিক (পেজ লোড হওয়ার পর)
+        const params = new URLSearchParams(window.location.search);
+        const songIdToPlay = params.get('play');
+        if (songIdToPlay) {
+            setTimeout(() => {
+                const targetCard = document.querySelector(`.song-card[data-id="${songIdToPlay}"]`);
+                if (targetCard) {
+                    targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    const playBtn = targetCard.querySelector('.play-pause-btn');
+                    if (playBtn) playBtn.click();
+                }
+            }, 1500); // ডাটা লোড হওয়ার জন্য কিছুটা সময় দেওয়া হয়েছে
+        }
     });
 }
 
 initializePlatform();
-    
