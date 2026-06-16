@@ -13,7 +13,6 @@
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
-    <!-- ফায়ারবেস কোর এবং অথেনটিকেশন মডিউল কমপ্যাট লাইব্রেরি -->
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
@@ -31,14 +30,13 @@
                 </div>
                 
                 <div class="menu-container">
-                    <button id="three-dot-btn" class="three-dot-btn" aria-label="Menu">⋮</button>
+                    <button id="three-dot-btn" class="three-dot-btn" aria-label="Menu" style="font-size: 24px; padding: 0 10px; background: none; border: none; color: white; cursor: pointer;">☰</button>
                     <div id="dropdown-menu" class="dropdown-menu">
                         <a href="index.html">🏠 হোম</a>
                         <a href="index.html?mode=favs">❤️ পছন্দের গান</a>
                         <a href="profile.html">👤 প্রোফাইল</a>
                         <a href="about.html">ℹ️ আমাদের সম্পর্কে</a>
                         <a href="terms.html">📜 শর্তাবলী</a>
-                        <!-- 🚪 ডিফল্টভাবে লগআউট বাটনটি এখানে হাইড করে রাখা হলো ভাই -->
                         <a href="#" id="menu-logout" class="menu-logout-btn" style="display: none; color: #ff4d4d;"><i class="fas fa-sign-out-alt"></i> লগআউট</a>
                     </div>
                 </div>
@@ -119,7 +117,6 @@
     <script>
         const db = window.db;
 
-        
         const threeDotBtn = document.getElementById('three-dot-btn');
         const dropdownMenu = document.getElementById('dropdown-menu');
         if (threeDotBtn && dropdownMenu) {
@@ -132,7 +129,6 @@
             });
         }
 
-        
         db.collection("site_branding").doc("site_branding").get().then((doc) => {
             if (doc.exists && doc.data().logo_url) {
                 const logoImg = document.getElementById('detail-site-logo');
@@ -143,7 +139,6 @@
             }
         }).catch(err => console.error("Error logo loading:", err));
 
-        
         db.collection("site_branding").doc("social_links").get().then((doc) => {
             if (doc.exists) {
                 const data = doc.data();
@@ -154,7 +149,6 @@
                     "link-instagram": data.instagram,
                     "link-tiktok": data.tiktok
                 };
-
                 for (const [id, url] of Object.entries(links)) {
                     const el = document.getElementById(id);
                     if (url && el) {
@@ -165,13 +159,11 @@
             }
         }).catch(err => console.error("Error loading social links:", err));
 
-        
         function getSongIdFromURL() {
             const params = new URLSearchParams(window.location.search);
             return params.get('id');
         }
 
-       
         function formatTime(secs) {
             if (isNaN(secs)) return "0:00";
             const minutes = Math.floor(secs / 60);
@@ -179,7 +171,6 @@
             return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
         }
 
-        // অডিও প্লেয়ার ইঞ্জিন
         let currentAudio = null;
         let activeInterval = null;
 
@@ -203,7 +194,6 @@
                 if (currentAudio.paused) {
                     currentAudio.play();
                     playIcon.className = 'fas fa-pause';
-
                     activeInterval = setInterval(() => {
                         if (!currentAudio.paused) {
                             seekSlider.value = (currentAudio.currentTime / currentAudio.duration) * 100 || 0;
@@ -231,9 +221,7 @@
             });
         }
 
-        // ফায়ারস্টোর থেকে স্পেসিফিক গানের ডাটা ফেচ করার লজিক
         const songId = getSongIdFromURL();
-
         if (!songId) {
             document.getElementById('detail-loader').style.display = 'none';
             document.getElementById('detail-error').style.display = 'block';
@@ -241,7 +229,6 @@
             db.collection("songs").where("id", "==", Number(songId)).get()
                 .then((querySnapshot) => {
                     document.getElementById('detail-loader').style.display = 'none';
-
                     if (querySnapshot.empty) {
                         return db.collection("songs").doc(songId).get();
                     } else {
@@ -264,10 +251,8 @@
                 });
         }
 
-        // স্ক্রিনে ডাটা পুশ করা
         function renderSongDetail(songData) {
             document.getElementById('song-detail-content').style.display = 'block';
-
             const title = songData.title || "শিরোনামহীন গান";
             const lyrics = songData.lyrics || "এই গানের কোনো লিরিক্স এখনো আপলোড করা হয়নি ভাই।";
             const thumb = songData.thumbnail_url || "https://via.placeholder.com/100?text=No+Cover";
@@ -290,11 +275,9 @@
             }
         }
 
-        // 👤 Firebase Auth রিয়েল-টাইম লিসেনার ও লগআউট হ্যান্ডলার লজিক ভাই
         if (window.firebase && firebase.auth) {
             firebase.auth().onAuthStateChanged((user) => {
                 const logoutBtn = document.getElementById('menu-logout');
-                // গেস্ট অ্যাকাউন্ট 'guest@thesadstation.com' না হলে এবং ইউজার থাকলে বাটন শো করবে
                 if (user && user.email !== 'guest@thesadstation.com') {
                     if (logoutBtn) logoutBtn.style.display = 'block';
                 } else {
@@ -302,7 +285,6 @@
                 }
             });
 
-            // লগআউট বাটনে ক্লিক অ্যাকশন সেটআপ
             const logoutBtn = document.getElementById('menu-logout');
             if (logoutBtn) {
                 logoutBtn.addEventListener('click', (e) => {
@@ -316,5 +298,5 @@
         }
     </script>
 </body>
-</html>
-                    
+    </html>
+    
