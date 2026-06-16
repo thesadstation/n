@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>যোগাযোগ | The Sad Station</title>
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+    <!-- হেডার সেকশন যা 77523.jpg এর মতো -->
+    <header style="padding: 15px 0; border-bottom: 1px solid #1c1c1c;">
+        <div class="container">
+            <div class="header-left">
+                <a href="index.html" style="text-decoration: none; display: flex; align-items: center; color: white;">
+                    <img id="site-logo" src="" alt="Logo" class="site-logo" style="display: none; width: 40px; margin-right: 15px; border-radius: 50%; border: 1px solid #1db954;">
+                    <h1 class="site-title" style="font-size: 20px; margin: 0;">The Sad Station</h1>
+                </a>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="margin-top: 40px; margin-bottom: 60px; max-width: 500px;">
+        
+        <div style="background: #121212; border: 1px solid #1c1c1c; border-radius: 16px; padding: 30px; color: #ccc;">
+            <div style="text-align: center; margin-bottom: 30px; background: #1c1c1c; padding: 15px; border-radius: 12px;">
+                <a href="index.html" style="text-decoration: none; color: #fff;">🏠 হোম পেজে ফিরে যান</a>
+            </div>
+
+            <h2 style="color: #fff; font-size: 28px; margin-bottom: 25px; border-left: 4px solid #1db954; padding-left: 15px;">যোগাযোগ করুন</h2>
+            
+            <form id="contact-form">
+                <div style="margin-bottom: 15px;">
+                    <label>আপনার নাম:</label>
+                    <input type="text" id="name" required style="width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 8px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label>আপনার ইমেইল:</label>
+                    <input type="email" id="email" required style="width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 8px;">
+                </div>
+                <div style="margin-bottom: 15px;">
+                    <label>আপনার বার্তা:</label>
+                    <textarea id="message" rows="5" required style="width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #333; color: #fff; border-radius: 8px;"></textarea>
+                </div>
+                <button type="submit" style="width: 100%; padding: 12px; background: #1db954; border: none; color: #000; font-weight: bold; border-radius: 8px; cursor: pointer;">বার্তা পাঠান</button>
+            </form>
+        </div>
+    </main>
+
+    <script src="config.js"></script>
+    <script>
+        const db = window.db;
+        db.collection("site_branding").doc("site_branding").get().then((doc) => {
+            if (doc.exists && doc.data().logo_url) {
+                const logoImg = document.getElementById('site-logo');
+                logoImg.src = doc.data().logo_url;
+                logoImg.style.display = 'block';
+            }
+        });
+
+        document.getElementById('contact-form').addEventListener('submit', (e) => {
+            e.preventDefault();
+            db.collection("messages").add({
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                message: document.getElementById('message').value,
+                timestamp: new Date()
+            }).then(() => {
+                alert("আপনার বার্তাটি সফলভাবে পাঠানো হয়েছে!");
+                document.getElementById('contact-form').reset();
+            });
+        });
+    </script>
+</body>
+</html>
