@@ -63,13 +63,13 @@
             <div class="header-top-row">
                 <div class="header-left">
                     <a href="index.html" style="text-decoration: none; display: flex; align-items: center; color: white;">
-                        <img id="login-site-logo" src="" alt="The Sad Station Logo" class="site-logo" style="display: none;">
+                        <img id="login-site-logo" src="" alt="The Sad Station Logo" class="site-logo">
                         <h1 class="site-title">The Sad Station</h1>
                     </a>
                 </div>
                 
                 <div class="menu-container">
-                    <button id="three-dot-btn" class="three-dot-btn" aria-label="Menu">⋮</button>
+                    <button id="three-dot-btn" class="three-dot-btn" aria-label="Menu">☰</button>
                     <div id="dropdown-menu" class="dropdown-menu">
                         <a href="index.html">🏠 হোম</a>
                         <a href="index.html?mode=favs">❤️ পছন্দের গান</a>
@@ -87,7 +87,7 @@
         <div style="background: #121212; border: 1px solid #1c1c1c; border-radius: 16px; padding: 35px 25px; width: 100%; max-width: 400px; box-shadow: 0 4px 20px rgba(0,0,0,0.6); text-align: center;">
             
             <div style="margin-bottom: 25px;">
-                <h2 id="auth-title" style="color: #fff; font-size: 22px; font-weight: 700; margin-bottom: 10px;">👋 স্বাগতম ভাই!</h2>
+                <h2 id="auth-title" style="color: #fff; font-size: 22px; font-weight: 700; margin-bottom: 10px;">👋 স্বাগতম!</h2>
                 <p id="auth-subtitle" style="color: #888; font-size: 14px;">আপনার অ্যাকাউন্টে লগইন করুন</p>
             </div>
 
@@ -126,7 +126,7 @@
             </form>
 
             <p style="color: #aaa; font-size: 14px; margin-top: 20px;">
-                <span id="toggle-msg">অ্যাকাউন্ট নেই ভাই?</span> 
+                <span id="toggle-msg">অ্যাকাউন্ট নেই?</span> 
                 <a href="#" id="toggle-auth-mode" style="color: #1db954; text-decoration: none; font-weight: 600; margin-left: 5px;">নতুন অ্যাকাউন্ট খুলুন</a>
             </p>
 
@@ -147,7 +147,7 @@
         <div class="modal-content">
             <span class="close-modal" onclick="closeResetModal()">&times;</span>
             <h3 style="color: #fff; font-size: 18px; font-weight: 600; margin-bottom: 10px;"><i class="fas fa-key" style="color: #1db954;"></i> পাসওয়ার্ড রিসেট করুন</h3>
-            <p style="color: #888; font-size: 13px; margin-bottom: 20px;">আপনার অ্যাকাউন্টের ইমেইল এড্রেসটি নিচে লিখুন ভাই, আমরা সেখানে একটি রিসেট লিংক পাঠিয়ে দেব।</p>
+            <p style="color: #888; font-size: 13px; margin-bottom: 20px;">আপনার অ্যাকাউন্টের ইমেইল এড্রেসটি নিচে লিখুন, আমরা সেখানে একটি রিসেট লিংক পাঠিয়ে দেব।</p>
             
             <form id="popup-reset-form" onsubmit="handlePopupForgotPassword(event)">
                 <div style="margin-bottom: 20px; text-align: left;">
@@ -157,7 +157,7 @@
                     </div>
                 </div>
                 <button type="submit" id="popup-reset-btn" class="download-btn" style="width: 100%; padding: 11px; font-size: 14px; font-weight: 700; border-radius: 8px; cursor: pointer;">
-                    <i class="fas fa-paper-plane"></i> লিংক পাঠান ভাই
+                    <i class="fas fa-paper-plane"></i> লিংক পাঠান
                 </button>
             </form>
         </div>
@@ -168,7 +168,8 @@
             <div class="footer-links" style="margin-bottom: 15px;">
                 <a href="about.html" style="text-decoration: none; color: #888; margin: 0 5px;">About Us</a> | 
                 <a href="terms.html" style="text-decoration: none; color: #888; margin: 0 5px;">Terms & Conditions</a> | 
-                <a href="privacy.html" style="text-decoration: none; color: #888; margin: 0 5px;">Privacy Policy</a>
+                <a href="privacy.html" style="text-decoration: none; color: #888; margin: 0 5px;">Privacy Policy</a> |
+                <a href="contact.html" style="text-decoration: none; color: #888; margin: 0 5px;">Contact Us</a>
             </div>
             <p class="copyright" style="color: #555; font-size: 13px;">Copyright &copy; 2026 The Sad Station. All Rights Reserved.</p>
         </div>
@@ -196,7 +197,6 @@
                 const logoImg = document.getElementById('login-site-logo');
                 if (logoImg) {
                     logoImg.src = doc.data().logo_url;
-                    logoImg.style.display = 'block';
                 }
             }
         }).catch(err => console.error("Error logo loading:", err));
@@ -214,22 +214,22 @@
             isLoginMode = !isLoginMode;
 
             if (isLoginMode) {
-                authTitle.innerText = "👋 স্বাগতম ভাই!";
+                authTitle.innerText = "👋 স্বাগতম!";
                 authSubtitle.innerText = "আপনার অ্যাকাউন্টে লগইন করুন";
                 nameGroup.style.display = "none";
                 forgotPasswordBox.style.display = "block";
                 document.getElementById('auth-name').required = false;
                 submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> লগইন করুন';
-                toggleMsg.innerText = "অ্যাকাউন্ট নেই ভাই?";
+                toggleMsg.innerText = "অ্যাকাউন্ট নেই ?";
                 toggleLink.innerText = "নতুন অ্যাকাউন্ট খুলুন";
             } else {
                 authTitle.innerText = "📝 অ্যাকাউন্ট তৈরি করুন";
-                authSubtitle.innerText = "আপনার সঠিক তথ্য দিয়ে ফরমটি পূরণ করুন ভাই";
+                authSubtitle.innerText = "আপনার সঠিক তথ্য দিয়ে ফরমটি পূরণ করুন";
                 nameGroup.style.display = "block";
                 forgotPasswordBox.style.display = "none";
                 document.getElementById('auth-name').required = true;
                 submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> সাইন-আপ করুন';
-                toggleMsg.innerText = "অলরেডি অ্যাকাউন্ট আছে ভাই?";
+                toggleMsg.innerText = "অলরেডি অ্যাকাউন্ট আছে?";
                 toggleLink.innerText = "লগইন করুন";
             }
         });
@@ -262,23 +262,23 @@
             if (!resetEmail) return;
 
             popupResetBtn.disabled = true;
-            popupResetBtn.innerText = "লিংক পাঠানো হচ্ছে ভাই...";
+            popupResetBtn.innerText = "লিংক পাঠানো হচ্ছে...";
 
             firebase.auth().sendPasswordResetEmail(resetEmail)
                 .then(() => {
-                    alert("আপনার ইমেইলে পাসওয়ার্ড রিসেট করার একটি লিংক পাঠানো হয়েছে ভাই। আপনার ইনবক্স অথবা স্প্যাম (Spam) ফোল্ডারটি চেক করুন! ✉️");
+                    alert("আপনার ইমেইলে পাসওয়ার্ড রিসেট করার একটি লিংক পাঠানো হয়েছে। আপনার ইনবক্স অথবা স্প্যাম (Spam) ফোল্ডারটি চেক করুন! ✉️");
                     closeResetModal();
                     popupResetBtn.disabled = false;
-                    popupResetBtn.innerHTML = '<i class="fas fa-paper-plane"></i> লিংক পাঠান ভাই';
+                    popupResetBtn.innerHTML = '<i class="fas fa-paper-plane"></i> লিংক পাঠান';
                 })
                 .catch((error) => {
                     popupResetBtn.disabled = false;
-                    popupResetBtn.innerHTML = '<i class="fas fa-paper-plane"></i> লিংক পাঠান ভাই';
+                    popupResetBtn.innerHTML = '<i class="fas fa-paper-plane"></i> লিংক পাঠান';
                     console.error("Password reset error:", error);
                     if (error.code === "auth/user-not-found") {
-                        alert("এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট খুঁজে পাওয়া যায়নি ভাই!");
+                        alert("এই ইমেইল দিয়ে কোনো অ্যাকাউন্ট খুঁজে পাওয়া যায়নি!");
                     } else if (error.code === "auth/invalid-email") {
-                        alert("দয়া করে একটি সঠিক ইমেইল এড্রেস দিন ভাই!");
+                        alert("দয়া করে একটি সঠিক ইমেইল এড্রেস দিন!");
                     } else {
                         alert("লিংক পাঠাতে সমস্যা হয়েছে: " + error.message);
                     }
@@ -293,31 +293,29 @@
             const name = document.getElementById('auth-name').value.trim();
 
             if (!window.firebase || !firebase.auth) {
-                alert("ফায়ারবেস লোড হতে সমস্যা হয়েছে ভাই, পেজটি রিফ্রেশ করুন।");
+                alert("লোড হতে সমস্যা হয়েছে, পেজটি রিফ্রেশ করুন।");
                 return;
             }
 
             submitBtn.disabled = true;
-            submitBtn.innerText = "প্রসেসিং হচ্ছে ভাই...";
+            submitBtn.innerText = "প্রসেসিং হচ্ছে...";
 
             if (isLoginMode) {
                 firebase.auth().signInWithEmailAndPassword(email, password)
                     .then((userCredential) => {
-                        alert("সফলভাবে লগইন হয়েছে ভাই! 🎉");
+                        alert("সফলভাবে লগইন হয়েছে! 🎉");
                         window.location.href = "profile.html";
                     })
                     .catch((error) => {
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = '<i class="fas fa-sign-in-alt"></i> লগইন করুন';
-                        alert("ভুল ইমেইল বা পাসওয়ার্ড দিয়েছেন ভাই! আবার চেষ্টা করুন।");
+                        alert("ভুল ইমেইল বা পাসওয়ার্ড দিয়েছেন! আবার চেষ্টা করুন।");
                     });
             } else {
-                // সাইন-আপ করার সময় Auth এবং Firestore দুই জায়গায় সেভ করার আপডেট লজিক
                 firebase.auth().createUserWithEmailAndPassword(email, password)
                     .then((userCredential) => {
                         const user = userCredential.user;
                         return user.updateProfile({ displayName: name }).then(() => {
-                            // Firestore-এর users কালেকশনে ডেটা সেভ করা হচ্ছে
                             return db.collection("users").doc(user.uid).set({
                                 uid: user.uid,
                                 name: name,
@@ -327,14 +325,14 @@
                         });
                     })
                     .then(() => {
-                        alert("আপনার অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে ভাই! 🎉");
+                        alert("আপনার অ্যাকাউন্ট সফলভাবে তৈরি হয়েছে! 🎉");
                         window.location.href = "profile.html";
                     })
                     .catch((error) => {
                         submitBtn.disabled = false;
                         submitBtn.innerHTML = '<i class="fas fa-user-plus"></i> সাইন-আপ করুন';
                         if (error.code === "auth/email-already-in-use") {
-                            alert("এই ইমেইলটি অলরেডি ব্যবহার করা হয়েছে ভাই!");
+                            alert("এই ইমেইলটি অলরেডি ব্যবহার করা হয়েছে!");
                         } else {
                             alert("অ্যাকাউন্ট তৈরি করতে সমস্যা হয়েছে: " + error.message);
                         }
@@ -347,7 +345,7 @@
                 submitBtn.disabled = true;
                 firebase.auth().signInWithEmailAndPassword("guest@thesadstation.com", "guest123456")
                     .then(() => {
-                        alert("গেস্ট মোডে প্রবেশ করেছেন ভাই! (পছন্দের গান ও প্রোফাইল ফিচার সেভ থাকবে না)");
+                        alert("গেস্ট মোডে প্রবেশ করেছেন ! (পছন্দের গান ও প্রোফাইল সেভ থাকবে না)");
                         window.location.href = "profile.html";
                     })
                     .catch(() => {
@@ -360,7 +358,7 @@
                             })
                             .catch(err => {
                                 submitBtn.disabled = false;
-                                alert("গেস্ট মোডে ঢুকতে সমস্যা হয়েছে ভাই।");
+                                alert("গেস্ট মোডে ঢুকতে সমস্যা হয়েছে");
                             });
                     });
             }
