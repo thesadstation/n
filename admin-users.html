@@ -9,25 +9,23 @@
         :root { --bg: #050505; --card: #0d0d0d; --logo-gold: #baa184; }
         body { background-color: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; padding: 20px; }
         .container { max-width: 1000px; margin: 0 auto; }
-        
-        /* সার্চ বার */
         .search-box { width: 100%; padding: 12px; margin-bottom: 20px; background: var(--card); border: 1px solid var(--logo-gold); color: #fff; border-radius: 8px; }
-        
-        table { width: 100%; border-collapse: collapse; background: var(--card); }
+        table { width: 100%; border-collapse: collapse; background: var(--card); margin-top: 10px; }
         th, td { padding: 15px; border-bottom: 1px solid #222; text-align: left; }
-        .user-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; }
-        
-        .ban-btn { padding: 6px 12px; cursor: pointer; border-radius: 4px; border: none; font-weight: bold; }
+        .user-img { width: 40px; height: 40px; border-radius: 50%; object-fit: cover; background: #333; cursor: pointer; }
+        .ban-btn { padding: 6px 10px; cursor: pointer; border-radius: 4px; border: none; font-weight: bold; margin: 2px; }
         .btn-active { background: #1db954; color: #fff; }
         .btn-banned { background: #dc3545; color: #fff; }
+        .btn-delete { background: #666; color: #fff; }
+        .modal { display: none; position: fixed; z-index: 1000; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.9); justify-content: center; align-items: center; }
+        .modal img { max-width: 90%; max-height: 80%; border: 2px solid var(--logo-gold); }
     </style>
 </head>
 <body>
 
     <div class="container">
-        <a href="admin.html" style="color:var(--logo-gold);"><i class="fas fa-arrow-left"></i> ড্যাশবোর্ড</a>
+        <a href="admin.html" style="color:var(--logo-gold); text-decoration:none;"><i class="fas fa-arrow-left"></i> ড্যাশবোর্ড</a>
         <h2>ইউজার ম্যানেজমেন্ট</h2>
-        
         <input type="text" id="user-search" class="search-box" placeholder="নাম বা ইমেইল দিয়ে সার্চ করুন...">
 
         <table>
@@ -39,65 +37,80 @@
                     <th>অ্যাকশন</th>
                 </tr>
             </thead>
-            <tbody id="users-body">
-                </tbody>
+            <tbody id="users-body"></tbody>
         </table>
     </div>
 
+    <div id="image-modal" class="modal" onclick="this.style.display='none'">
+        <img id="modal-img" src="" alt="Full Size">
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="config.js"></script>
     <script>
         const db = window.db;
+        const auth = window.auth;
         const usersBody = document.getElementById('users-body');
         const searchInput = document.getElementById('user-search');
         let allUsers = [];
 
-        // ইউজার ডাটা লোড
-        db.collection("users").get().then((snapshot) => {
-            snapshot.forEach((doc) => {
-                const user = { id: doc.id, ...doc.data() };
-                allUsers.push(user);
-            });
-            renderUsers(allUsers);
+        // অথেন্টিকেশন চেক
+        auth.onAuthStateChanged((user) => {
+            if (!user) window.location.href = "login.html";
+            else loadUsers();
         });
 
-        // টেবিল রেন্ডার
+        function loadUsers() {
+            db.collection("users").get().then((snapshot) => {
+                allUsers = [];
+                snapshot.forEach((doc) => {
+                    allUsers.push({ id: doc.id, ...doc.data() });
+                });
+                renderUsers(allUsers);
+            }).catch(err => alert("ডাটা লোড করতে সমস্যা: " + err.message));
+        }
+
         function renderUsers(users) {
             usersBody.innerHTML = '';
             users.forEach(user => {
                 const status = user.status === 'banned' ? 'banned' : 'active';
                 const row = `<tr>
-                    <td><img src="${user.photoURL || 'default-avatar.png'}" class="user-img"></td>
-                    <td>${user.displayName || 'নাম নেই'}</td>
-                    <td>${user.email || 'ইমেইল নেই'}</td>
+                    <td><img src="${user.photoURL || 'https://via.placeholder.com/150'}" class="user-img" onclick="showLargeImage('${user.photoURL}')"></td>
+                    <td>${user.name || "N/A"}</td>
+                    <td>${user.email || "N/A"}</td>
                     <td>
-                        <button class="ban-btn ${status === 'active' ? 'btn-active' : 'btn-banned'}" 
-                                onclick="toggleBan('${user.id}', '${status}')">
+                        <button class="ban-btn ${status === 'active' ? 'btn-active' : 'btn-banned'}" onclick="toggleBan('${user.id}', '${status}')">
                             ${status === 'active' ? 'অ্যাক্টিভ' : 'ব্যানড'}
                         </button>
+                        <button class="ban-btn btn-delete" onclick="deleteUser('${user.id}')">ডিলিট</button>
                     </td>
                 </tr>`;
                 usersBody.innerHTML += row;
             });
         }
 
-        // সার্চ লজিক
+        window.toggleBan = (uid, currentStatus) => {
+            db.collection("users").doc(uid).update({ status: currentStatus === 'active' ? 'banned' : 'active' })
+            .then(() => location.reload());
+        };
+
+        window.deleteUser = (uid) => {
+            if(confirm("নিশ্চিত?")) {
+                db.collection("users").doc(uid).delete().then(() => location.reload());
+            }
+        };
+
+        window.showLargeImage = (src) => {
+            document.getElementById('modal-img').src = src || 'https://via.placeholder.com/150';
+            document.getElementById('image-modal').style.display = 'flex';
+        };
+
         searchInput.addEventListener('input', (e) => {
             const term = e.target.value.toLowerCase();
-            const filtered = allUsers.filter(u => 
-                (u.displayName && u.displayName.toLowerCase().includes(term)) || 
-                (u.email && u.email.toLowerCase().includes(term))
-            );
-            renderUsers(filtered);
+            renderUsers(allUsers.filter(u => (u.name?.toLowerCase().includes(term)) || (u.email?.toLowerCase().includes(term))));
         });
-
-        // ব্যান লজিক
-        window.toggleBan = (uid, currentStatus) => {
-            const newStatus = currentStatus === 'active' ? 'banned' : 'active';
-            db.collection("users").doc(uid).update({ status: newStatus }).then(() => {
-                alert("ইউজার স্ট্যাটাস আপডেট হয়েছে ভাই!");
-                location.reload();
-            });
-        };
     </script>
 </body>
 </html>
