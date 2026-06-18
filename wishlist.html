@@ -70,7 +70,6 @@
     <script>
         const db = window.db;
 
-        // মেনু ও লোগো লজিক
         const threeDotBtn = document.getElementById('three-dot-btn');
         const dropdownMenu = document.getElementById('dropdown-menu');
         threeDotBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('show'); });
@@ -94,7 +93,6 @@
             }
         });
 
-        // লগআউট লজিক
         firebase.auth().onAuthStateChanged((user) => {
             const logoutBtn = document.getElementById('menu-logout');
             if (user && user.email !== 'guest@thesadstation.com') {
@@ -106,7 +104,6 @@
             firebase.auth().signOut().then(() => { window.location.href = "index.html"; });
         });
 
-        // পছন্দের গান রেন্ডার
         firebase.auth().onAuthStateChanged(async (user) => {
             if (!user) { window.location.href = "login.html"; return; }
             const listDiv = document.getElementById('wishlist-list');
@@ -120,19 +117,19 @@
                 loader.style.display = 'none';
                 favSnap.forEach(doc => {
                     const favData = doc.data();
-                    const song = songSnap.docs.find(d => String(d.data().id) === String(favData.song_id));
+                    const song = songSnap.docs.find(d => String(d.data().id) == String(favData.song_id));
+                    
                     if (song) {
                         const songData = song.data();
                         const card = document.createElement('div');
                         card.className = 'song-card';
                         card.innerHTML = `
-                            <div class="song-header-meta">
-                                <img class="song-thumb" src="${songData.thumbnail_url}" alt="${songData.title}" style="width: 60px; height: 60px;">
-                                <div class="song-info-block">
-                                    <h3 class="song-title" style="margin:0; font-size: 16px;">${songData.title}</h3>
-                                    <a href="index.html?play=${songData.id}" style="color: #1db954; text-decoration: none; font-size: 13px;">▶ প্লে করুন</a>
-                                </div>
-                                <button onclick="removeFromWishlist('${doc.id}')" style="background:none; border:none; color:#ff4d4d; cursor:pointer;"><i class="fas fa-trash"></i></button>
+                            <div class="song-header-meta" style="display: flex; align-items: center; gap: 15px; padding: 10px; background: #1a1a1a; border-radius: 8px; margin-bottom: 10px;">
+                                <a href="song-detail.html?slug=${songData.slug}" style="text-decoration: none; color: white; display: flex; align-items: center; gap: 15px; flex-grow: 1;">
+                                    <img src="${songData.thumbnail}" alt="${songData.title}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;">
+                                    <h3 style="margin:0; font-size: 16px;">${songData.title}</h3>
+                                </a>
+                                <button onclick="removeFromWishlist('${doc.id}')" style="background:none; border:none; color:#ff4d4d; cursor:pointer; font-size: 18px;"><i class="fas fa-trash"></i></button>
                             </div>
                         `;
                         listDiv.appendChild(card);
