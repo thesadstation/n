@@ -62,44 +62,7 @@ window.toggleFavorite = async function(songId, buttonElement) {
     }
 };
 
-// ৪. অডিও প্লেয়ার ইঞ্জিন
-window.initAudioPlayer = function(cardElement, audioUrl) {
-    const playPauseBtn = cardElement.querySelector('.play-pause-btn');
-    const playIcon = playPauseBtn.querySelector('i');
-    const seekSlider = cardElement.querySelector('.seek-slider');
-    const currentTimeText = cardElement.querySelector('.current-time');
-    const durationTimeText = cardElement.querySelector('.duration-time');
-    
-    const audio = new Audio(audioUrl);
-    audio.addEventListener('loadedmetadata', () => {
-        if(durationTimeText) durationTimeText.innerText = formatTime(audio.duration);
-    });
-
-    playPauseBtn.addEventListener('click', () => {
-        if (audio.paused) { audio.play(); playIcon.className = 'fas fa-pause'; }
-        else { audio.pause(); playIcon.className = 'fas fa-play'; }
-    });
-
-    audio.addEventListener('timeupdate', () => {
-        if (seekSlider) {
-            seekSlider.value = (audio.currentTime / audio.duration) * 100 || 0;
-            currentTimeText.innerText = formatTime(audio.currentTime);
-        }
-    });
-
-    seekSlider.addEventListener('input', () => {
-        audio.currentTime = audio.duration * (seekSlider.value / 100);
-    });
-};
-
-function formatTime(secs) {
-    if (isNaN(secs)) return "0:00";
-    const minutes = Math.floor(secs / 60);
-    const seconds = Math.floor(secs % 60);
-    return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
-}
-
-// ৫. রেন্ডার ইঞ্জিন
+// ৪. রেন্ডার ইঞ্জিন (প্লেয়ারবিহীন ক্লিন কার্ড)
 function renderSongs() {
     const songList = document.getElementById('song-list');
     const loader = document.getElementById('loader');
@@ -109,41 +72,40 @@ function renderSongs() {
     songList.innerHTML = ''; 
     displayedSongs.forEach(song => {
         const isFav = userFavorites.includes(String(song.id));
-        const card = document.createElement('div');
+        const card = document.createElement('article'); // এসইও এর জন্য article ট্যাগ
         card.className = 'song-card';
         card.innerHTML = `
             <div class="song-header-meta">
                 <img class="song-thumb" src="${song.thumbnail}" alt="${song.title}">
                 <div class="song-info-block">
                     <h3 class="song-title">${song.title}</h3>
-                    <a href="song-detail.html?slug=${song.slug}" class="lyrics-link">লিরিক্স ও ডিটেইলস</a>
+                    <p class="song-excerpt">${song.lyrics ? song.lyrics.substring(0, 70) + '...' : 'লিরিক্স ও ডিটেইলস দেখুন...'}</p>
+                    <a href="song-detail.html?slug=${song.slug}" class="lyrics-link">বিস্তারিত দেখুন ও শুনুন</a>
                 </div>
                 <button class="heart-btn ${isFav ? 'active' : ''}">
                     <i class="${isFav ? 'fas' : 'far'} fa-heart"></i>
                 </button>
             </div>
-            <div class="custom-audio-player">
-                <button class="play-pause-btn"><i class="fas fa-play"></i></button>
-                <input type="range" class="seek-slider" min="0" max="100" value="0">
-                <span class="current-time">0:00</span>
-                <span class="duration-time">0:00</span>
-                <a href="${song.audio}" download="${song.title}.mp3" class="download-trigger"><i class="fas fa-download"></i></a>
-            </div>
         `;
         card.querySelector('.heart-btn').addEventListener('click', (e) => window.toggleFavorite(song.id, e.currentTarget));
         songList.appendChild(card);
-        window.initAudioPlayer(card, song.audio);
     });
 }
 
-// ৬. ইনিশিয়াল ফাংশন
+// ৫. ইনিশিয়াল ফাংশন (লোগো, ব্যানার, সোশ্যাল সবকিছু লোড হবে)
 async function initializePlatform() {
+    // ব্র্যান্ডিং ও ব্যানার লোড
     db.collection("site_branding").doc("site_branding").get().then(doc => {
-        if (doc.exists && doc.data().logo_url) {
+        if (doc.exists) {
+            const data = doc.data();
             const logo = document.getElementById('site-logo');
-            logo.src = doc.data().logo_url; logo.style.display = 'block';
+            const banner = document.getElementById('main-banner');
+            if (logo && data.logo_url) { logo.src = data.logo_url; logo.style.display = 'block'; }
+            if (banner && data.banner_url) { banner.src = data.banner_url; banner.style.display = 'block'; }
         }
     });
+
+    // সোশ্যাল আইকন লোড
     db.collection("site_branding").doc("social_links").get().then(doc => {
         if (doc.exists) {
             const data = doc.data();
@@ -173,4 +135,5 @@ async function initializePlatform() {
             renderSongs();
         }
     });
-}
+    }
+        
