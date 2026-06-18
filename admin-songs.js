@@ -1,23 +1,23 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const auth = window.auth; 
-    const db = window.db;     
+    const auth = firebase.auth(); // সরাসরি ফায়ারবেস থেকে কল করো
+    const db = firebase.firestore();
     const uploadForm = document.getElementById('add-song-form');
     const wrapperDiv = document.getElementById('song-upload-wrapper');
+    const MY_ADMIN_EMAIL = "atik89084@gmail.com"; // তোমার ইমেইল
 
-    // ক্লাউডিনারি কনফিগারেশন
     const CLOUD_NAME = "dwxhgon31";
     const PRESET = "mystation";
 
-    // লগইন চেক
+    // সিকিউরিটি: পেজ লোড হওয়ার সাথে সাথে এডমিন চেক
     auth.onAuthStateChanged((user) => {
-        if (user) {
+        if (user && user.email === MY_ADMIN_EMAIL) {
             if (wrapperDiv) wrapperDiv.style.display = 'block';
         } else {
-            window.location.href = "login.html";
+            // এডমিন না হলে বা লগইন না থাকলে বের করে দাও
+            window.location.href = "index.html";
         }
     });
 
-    // API এর মাধ্যমে আপলোড করার ফাংশন
     const uploadToCloudinary = async (file, type) => {
         const formData = new FormData();
         formData.append("file", file);
@@ -29,25 +29,32 @@ document.addEventListener('DOMContentLoaded', () => {
         return data.secure_url;
     };
 
-    // গ্যালারি থেকে ফাইল সিলেক্ট হওয়ার পর আপলোড শুরু
     document.getElementById('img-input').onchange = async (e) => {
         if (!e.target.files[0]) return;
-        alert("ছবি আপলোড হচ্ছে...");
+        const btn = e.target.previousElementSibling;
+        btn.innerText = "ছবি আপলোড হচ্ছে...";
         document.getElementById('song-thumbnail').value = await uploadToCloudinary(e.target.files[0], 'image');
-        alert("ছবি আপলোড সম্পন্ন!");
+        btn.innerText = "✅ ছবি আপলোড সফল!";
     };
 
     document.getElementById('audio-input').onchange = async (e) => {
         if (!e.target.files[0]) return;
-        alert("অডিও আপলোড হচ্ছে...");
+        const btn = e.target.previousElementSibling;
+        btn.innerText = "অডিও আপলোড হচ্ছে...";
         document.getElementById('song-audio').value = await uploadToCloudinary(e.target.files[0], 'video');
-        alert("অডিও আপলোড সম্পন্ন!");
+        btn.innerText = "✅ অডিও আপলোড সফল!";
     };
 
-    // ফর্ম সাবমিট হ্যান্ডলিং
     if (uploadForm) {
         uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
+            
+            // সাবমিট করার আগে শেষবার চেক
+            const currentUser = auth.currentUser;
+            if (!currentUser || currentUser.email !== MY_ADMIN_EMAIL) {
+                alert("অনুমতি নেই!");
+                return;
+            }
 
             const thumbnailUrl = document.getElementById('song-thumbnail').value;
             const audioUrl = document.getElementById('song-audio').value;
@@ -74,14 +81,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 };
 
                 await db.collection("songs").doc(songData.slug).set(songData);
-
                 alert("ভাই, গানটি সফলভাবে লাইভ হয়েছে! 🎉");
                 uploadForm.reset();
-                document.getElementById('song-thumbnail').value = "";
-                document.getElementById('song-audio').value = "";
             } catch (error) {
-                console.error("Error:", error);
-                alert("দুঃখিত ভাই, ডাটাবেজে সেভ করতে সমস্যা হয়েছে: " + error.message);
+                alert("দুঃখিত ভাই, সমস্যা হয়েছে: " + error.message);
             } finally {
                 submitBtn.disabled = false;
                 submitBtn.innerText = "🚀 গানটি লাইভ করুন";
