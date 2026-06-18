@@ -1,129 +1,94 @@
-// config.js থেকে গ্লোবাল উইন্ডো স্কোপের db অবজেক্টটি ব্যবহার করা হচ্ছে
+// ১. গ্লোবাল ভেরিয়েবল
 const db = window.db;
-
-// গ্লোবাল ভেরিয়েবলস
 let allSongs = [];
-let filteredSongs = [];
+let displayedSongs = [];
 let userFavorites = []; 
 let currentUser = null; 
 
-// মেনু টগল লজিক (৩-লাইন মেনু)
-const menuToggleBtn = document.getElementById('menu-toggle-btn');
-const dropdownMenu = document.getElementById('dropdown-menu');
+// ২. DOMContentLoaded এবং মেনু ও সার্চ লজিক
+document.addEventListener('DOMContentLoaded', () => {
+    const loader = document.getElementById('loader');
+    if (loader) loader.style.display = 'block';
+    
+    initializePlatform();
+    setupMenu();
+    setupSearch();
+});
 
-if (menuToggleBtn && dropdownMenu) {
-    menuToggleBtn.addEventListener('click', (e) => {
-        e.stopPropagation();
-        dropdownMenu.classList.toggle('show');
-    });
-    document.addEventListener('click', () => {
-        dropdownMenu.classList.remove('show');
-    });
+function setupMenu() {
+    const menuToggleBtn = document.getElementById('menu-toggle-btn');
+    const dropdownMenu = document.getElementById('dropdown-menu');
+    if (menuToggleBtn && dropdownMenu) {
+        menuToggleBtn.addEventListener('click', (e) => { e.stopPropagation(); dropdownMenu.classList.toggle('show'); });
+        document.addEventListener('click', () => dropdownMenu.classList.remove('show'));
+    }
 }
 
-// 🔍 সার্চ লজিক
-const searchInput = document.getElementById('search-input');
-const noResults = document.getElementById('no-results');
-
-if (searchInput) {
-    searchInput.addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
-        filteredSongs = allSongs.filter(song => 
-            song.title.toLowerCase().includes(term)
-        );
-        
-        if (filteredSongs.length === 0) {
-            noResults.style.display = 'block';
-        } else {
-            noResults.style.display = 'none';
-        }
-        renderSongs();
-    });
-}
-
-// লগআউট লজিক
-const logoutBtn = document.getElementById('menu-logout');
-if (logoutBtn) {
-    logoutBtn.addEventListener('click', (e) => {
-        e.preventDefault();
-        window.auth.signOut().then(() => {
-            window.location.reload(); 
+function setupSearch() {
+    const searchInput = document.getElementById('search-input');
+    if (searchInput) {
+        searchInput.addEventListener('input', (e) => {
+            const searchTerm = e.target.value.toLowerCase();
+            const filtered = allSongs.filter(song => song.title.toLowerCase().includes(searchTerm));
+            displayedSongs = filtered.slice(0, 10);
+            renderSongs();
+            const noResults = document.getElementById('no-results');
+            if (noResults) noResults.style.display = (filtered.length === 0) ? 'block' : 'none';
         });
-    });
+    }
 }
 
-// হার্ট আইকন লজিক
+// ৩. ফেভারিট লজিক
 window.toggleFavorite = async function(songId, buttonElement) {
-    const isGuest = currentUser ? (currentUser.email === "guest@thesadstation.com") : true;
-
-    if (!currentUser || isGuest) {
-        alert("পছন্দের তালিকায় গান যোগ করতে প্রথমে আসল অ্যাকাউন্ট দিয়ে লগইন করুন ভাই!");
+    if (!currentUser || currentUser.email === "guest@thesadstation.com") {
+        alert("পছন্দের তালিকায় গান যোগ করতে লগইন করুন!");
         window.location.href = "login.html";
         return;
     }
-
     songId = String(songId);
     const icon = buttonElement.querySelector('i');
     const favDocRef = db.collection("user_favorites").doc(`${currentUser.uid}_${songId}`);
-
-    const isCurrentlyFav = userFavorites.includes(songId);
     
-    if (isCurrentlyFav) {
+    if (userFavorites.includes(songId)) {
         userFavorites = userFavorites.filter(id => id !== songId);
         buttonElement.classList.remove('active');
-        if (icon) icon.className = 'far fa-heart';
+        icon.className = 'far fa-heart';
         await favDocRef.delete();
     } else {
         userFavorites.push(songId);
         buttonElement.classList.add('active');
-        if (icon) icon.className = 'fas fa-heart';
-        await favDocRef.set({
-            user_id: currentUser.uid,
-            song_id: songId,
-            timestamp: firebase.firestore.FieldValue.serverTimestamp()
-        });
+        icon.className = 'fas fa-heart';
+        await favDocRef.set({ user_id: currentUser.uid, song_id: songId, timestamp: firebase.firestore.FieldValue.serverTimestamp() });
     }
 };
 
-// অডিও প্লেয়ার ইঞ্জিন
+// ৪. অডিও প্লেয়ার ইঞ্জিন
 window.initAudioPlayer = function(cardElement, audioUrl) {
     const playPauseBtn = cardElement.querySelector('.play-pause-btn');
     const playIcon = playPauseBtn.querySelector('i');
     const seekSlider = cardElement.querySelector('.seek-slider');
     const currentTimeText = cardElement.querySelector('.current-time');
     const durationTimeText = cardElement.querySelector('.duration-time');
-
+    
     const audio = new Audio(audioUrl);
-    audio.addEventListener('loadedmetadata', () => durationTimeText.innerText = formatTime(audio.duration));
+    audio.addEventListener('loadedmetadata', () => {
+        if(durationTimeText) durationTimeText.innerText = formatTime(audio.duration);
+    });
 
     playPauseBtn.addEventListener('click', () => {
-        if (window.currentAudio && window.currentAudio !== audio) {
-            window.currentAudio.pause();
-            if (window.currentPlayBtn) window.currentPlayBtn.innerHTML = '<i class="fas fa-play"></i>';
-            clearInterval(window.activeInterval);
-        }
+        if (audio.paused) { audio.play(); playIcon.className = 'fas fa-pause'; }
+        else { audio.pause(); playIcon.className = 'fas fa-play'; }
+    });
 
-        if (audio.paused) {
-            audio.play();
-            playIcon.className = 'fas fa-pause';
-            window.currentAudio = audio;
-            window.currentPlayBtn = playPauseBtn;
-            window.activeInterval = setInterval(() => {
-                if (!audio.paused) {
-                    seekSlider.value = (audio.currentTime / audio.duration) * 100 || 0;
-                    currentTimeText.innerText = formatTime(audio.currentTime);
-                }
-            }, 500);
-        } else {
-            audio.pause();
-            playIcon.className = 'fas fa-play';
-            clearInterval(window.activeInterval);
+    audio.addEventListener('timeupdate', () => {
+        if (seekSlider) {
+            seekSlider.value = (audio.currentTime / audio.duration) * 100 || 0;
+            currentTimeText.innerText = formatTime(audio.currentTime);
         }
     });
 
     seekSlider.addEventListener('input', () => {
         audio.currentTime = audio.duration * (seekSlider.value / 100);
-        currentTimeText.innerText = formatTime(audio.currentTime);
     });
 };
 
@@ -134,25 +99,24 @@ function formatTime(secs) {
     return `${minutes}:${seconds < 10 ? '0' : ''}${seconds}`;
 }
 
-// গান রেন্ডার ইঞ্জিন
+// ৫. রেন্ডার ইঞ্জিন
 function renderSongs() {
     const songList = document.getElementById('song-list');
     const loader = document.getElementById('loader');
     if (loader) loader.style.display = 'none';
     if (!songList) return;
-    songList.innerHTML = '';
     
-    filteredSongs.forEach(song => {
+    songList.innerHTML = ''; 
+    displayedSongs.forEach(song => {
         const isFav = userFavorites.includes(String(song.id));
-        const songCard = document.createElement('div');
-        songCard.className = 'song-card';
-        songCard.setAttribute('data-id', song.id); // গান শনাক্ত করার জন্য ID যোগ করা হলো
-        songCard.innerHTML = `
+        const card = document.createElement('div');
+        card.className = 'song-card';
+        card.innerHTML = `
             <div class="song-header-meta">
-                <img class="song-thumb" src="${song.thumbnail_url}" alt="${song.title}">
+                <img class="song-thumb" src="${song.thumbnail}" alt="${song.title}">
                 <div class="song-info-block">
                     <h3 class="song-title">${song.title}</h3>
-                    <a href="song-detail.html?id=${song.id}" class="lyrics-link">লিরিক্স ও ডিটেইলস</a>
+                    <a href="song-detail.html?slug=${song.slug}" class="lyrics-link">লিরিক্স ও ডিটেইলস</a>
                 </div>
                 <button class="heart-btn ${isFav ? 'active' : ''}">
                     <i class="${isFav ? 'fas' : 'far'} fa-heart"></i>
@@ -163,32 +127,23 @@ function renderSongs() {
                 <input type="range" class="seek-slider" min="0" max="100" value="0">
                 <span class="current-time">0:00</span>
                 <span class="duration-time">0:00</span>
-                <a href="${song.audio_url}" download class="download-trigger" style="margin-left: 10px; color: #1db954;">
-                    <i class="fas fa-download"></i>
-                </a>
+                <a href="${song.audio}" download="${song.title}.mp3" class="download-trigger"><i class="fas fa-download"></i></a>
             </div>
         `;
-        
-        const heartBtn = songCard.querySelector('.heart-btn');
-        heartBtn.addEventListener('click', () => window.toggleFavorite(song.id, heartBtn));
-        
-        songList.appendChild(songCard);
-        window.initAudioPlayer(songCard, song.audio_url);
+        card.querySelector('.heart-btn').addEventListener('click', (e) => window.toggleFavorite(song.id, e.currentTarget));
+        songList.appendChild(card);
+        window.initAudioPlayer(card, song.audio);
     });
 }
 
-// মূল ফাংশন
+// ৬. ইনিশিয়াল ফাংশন
 async function initializePlatform() {
     db.collection("site_branding").doc("site_branding").get().then(doc => {
-        if (doc.exists) {
-            const data = doc.data();
-            const logoImg = document.getElementById('site-logo');
-            const bannerImg = document.getElementById('main-banner');
-            if (logoImg && data.logo_url) { logoImg.src = data.logo_url; logoImg.style.display = 'block'; }
-            if (bannerImg && data.banner_url) { bannerImg.src = data.banner_url; bannerImg.style.display = 'block'; }
+        if (doc.exists && doc.data().logo_url) {
+            const logo = document.getElementById('site-logo');
+            logo.src = doc.data().logo_url; logo.style.display = 'block';
         }
     });
-
     db.collection("site_branding").doc("social_links").get().then(doc => {
         if (doc.exists) {
             const data = doc.data();
@@ -203,42 +158,19 @@ async function initializePlatform() {
     try {
         const songSnap = await db.collection("songs").get();
         allSongs = songSnap.docs.map(doc => ({ id: String(doc.data().id), ...doc.data() }));
-        filteredSongs = [...allSongs];
-    } catch (e) {
-        console.error("গান লোড করতে সমস্যা:", e);
-    }
+        displayedSongs = allSongs.slice(0, 10);
+        renderSongs();
+    } catch (e) { console.error(e); }
 
     window.auth.onAuthStateChanged(async (user) => {
         currentUser = user;
-        const logoutMenuOption = document.getElementById('menu-logout');
-        if (logoutMenuOption) logoutMenuOption.style.display = user ? 'block' : 'none';
+        const logoutBtn = document.getElementById('menu-logout');
+        if (logoutBtn) logoutBtn.style.display = user ? 'block' : 'none';
         
         if (user && user.email !== "guest@thesadstation.com") {
-            try {
-                const favSnap = await db.collection("user_favorites").where("user_id", "==", user.uid).get();
-                userFavorites = favSnap.docs.map(d => String(d.data().song_id));
-            } catch (e) {
-                userFavorites = [];
-            }
-        } else {
-            userFavorites = [];
-        }
-        renderSongs();
-        
-        // অটো-প্লে লজিক (পেজ লোড হওয়ার পর)
-        const params = new URLSearchParams(window.location.search);
-        const songIdToPlay = params.get('play');
-        if (songIdToPlay) {
-            setTimeout(() => {
-                const targetCard = document.querySelector(`.song-card[data-id="${songIdToPlay}"]`);
-                if (targetCard) {
-                    targetCard.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                    const playBtn = targetCard.querySelector('.play-pause-btn');
-                    if (playBtn) playBtn.click();
-                }
-            }, 1500); // ডাটা লোড হওয়ার জন্য কিছুটা সময় দেওয়া হয়েছে
+            const favSnap = await db.collection("user_favorites").where("user_id", "==", user.uid).get();
+            userFavorites = favSnap.docs.map(d => String(d.data().song_id));
+            renderSongs();
         }
     });
 }
-
-initializePlatform();
