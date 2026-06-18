@@ -135,5 +135,4 @@ async function initializePlatform() {
             renderSongs();
         }
     });
-    }
-        
+}
