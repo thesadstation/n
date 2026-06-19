@@ -1,22 +1,21 @@
 document.addEventListener('DOMContentLoaded', () => {
     const auth = firebase.auth();
-    const db = window.db;
+    const db = firebase.firestore(); // window.db এর বদলে সরাসরি firebase.firestore() ব্যবহার করা ভালো
     const brandingForm = document.getElementById('branding-form');
     const logoInput = document.getElementById('branding-logo');
     const bannerInput = document.getElementById('branding-banner');
     const wrapperDiv = document.getElementById('logo-settings-wrapper');
+    const MY_ADMIN_EMAIL = "atik89084@gmail.com"; // তোমার ইমেইল
 
-    // 🔒 মেইন সিকিউরিটি চেক: লগইন না থাকলে সরাসরি বের করে দেওয়া
+    // 🔒 মেইন সিকিউরিটি চেক: ইমেইল ভেরিফিকেশন সহ
     auth.onAuthStateChanged((user) => {
-        if (user) {
-            // ইউজার লগইন থাকলে পেজের কন্টেন্ট স্ক্রিনে দেখাও ভাই
+        if (user && user.email === MY_ADMIN_EMAIL) {
+            // ইউজার এডমিন হলে কন্টেন্ট দেখাও
             if (wrapperDiv) wrapperDiv.style.display = 'block';
-            
-            // ডাটাবেজ থেকে আগের জমানো সেটিংস নিয়ে আসা
             fetchBrandingData();
         } else {
-            // লগইন ছাড়া আসলে সোজা লগইন পেজে রিডাইরেক্ট
-            window.location.href = "login.html";
+            // লগইন না থাকলে বা এডমিন না হলে রিডাইরেক্ট
+            window.location.href = "index.html";
         }
     });
 
@@ -26,7 +25,6 @@ document.addEventListener('DOMContentLoaded', () => {
             .then((doc) => {
                 if (doc.exists) {
                     const data = doc.data();
-                    // ডাটাবেজে লিংক থাকলে ইনপুট বক্সে সেট করো ভাই
                     if (data.logo_url && logoInput) logoInput.value = data.logo_url;
                     if (data.banner_url && bannerInput) bannerInput.value = data.banner_url;
                 }
@@ -39,10 +37,16 @@ document.addEventListener('DOMContentLoaded', () => {
         brandingForm.addEventListener('submit', (e) => {
             e.preventDefault();
 
+            // সাবমিটের আগে সিকিউরিটি চেক
+            const currentUser = auth.currentUser;
+            if (!currentUser || currentUser.email !== MY_ADMIN_EMAIL) {
+                alert("অনুমতি নেই!");
+                return;
+            }
+
             const logoUrl = logoInput.value.trim();
             const bannerUrl = bannerInput.value.trim();
 
-            // ফায়ারস্টোরে merge: true দিয়ে আপডেট করা, যাতে আগের অন্য ডাটা ডিলিট না হয়
             db.collection("site_branding").doc("site_branding").set({
                 logo_url: logoUrl,
                 banner_url: bannerUrl
@@ -52,7 +56,7 @@ document.addEventListener('DOMContentLoaded', () => {
             })
             .catch((error) => {
                 console.error("Error updating branding:", error);
-                alert("দুঃখিত ভাই, ডাটা সেভ করা যায়নি। আবার চেষ্টা করুন।");
+                alert("দুঃখিত ভাই, ডাটা সেভ করা যায়নি।");
             });
         });
     }
