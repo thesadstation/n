@@ -8,6 +8,10 @@
     <style>
         :root { --bg: #050505; --card: #0d0d0d; --logo-gold: #baa184; }
         body { background-color: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        
+        /* সিকিউরিটি: পেজ লোড হওয়ার আগে কন্টেন্ট হাইড থাকবে */
+        #admin-users-wrapper { display: none; }
+        
         .container { max-width: 1000px; margin: 0 auto; }
         .search-box { width: 100%; padding: 12px; margin-bottom: 20px; background: var(--card); border: 1px solid var(--logo-gold); color: #fff; border-radius: 8px; }
         table { width: 100%; border-collapse: collapse; background: var(--card); margin-top: 10px; }
@@ -23,7 +27,7 @@
 </head>
 <body>
 
-    <div class="container">
+    <div class="container" id="admin-users-wrapper">
         <a href="admin.html" style="color:var(--logo-gold); text-decoration:none;"><i class="fas fa-arrow-left"></i> ড্যাশবোর্ড</a>
         <h2>ইউজার ম্যানেজমেন্ট</h2>
         <input type="text" id="user-search" class="search-box" placeholder="নাম বা ইমেইল দিয়ে সার্চ করুন...">
@@ -50,16 +54,21 @@
     <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
     <script src="config.js"></script>
     <script>
-        const db = window.db;
-        const auth = window.auth;
+        const db = firebase.firestore();
+        const auth = firebase.auth();
         const usersBody = document.getElementById('users-body');
         const searchInput = document.getElementById('user-search');
+        const MY_ADMIN_EMAIL = "atik89084@gmail.com";
         let allUsers = [];
 
-        // অথেন্টিকেশন চেক
+        // সিকিউরিটি: পেজ লোড হওয়ার সাথে সাথে এডমিন চেক
         auth.onAuthStateChanged((user) => {
-            if (!user) window.location.href = "login.html";
-            else loadUsers();
+            if (user && user.email === MY_ADMIN_EMAIL) {
+                document.getElementById('admin-users-wrapper').style.display = 'block';
+                loadUsers();
+            } else {
+                window.location.href = "index.html";
+            }
         });
 
         function loadUsers() {
