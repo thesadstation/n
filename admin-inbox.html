@@ -8,6 +8,10 @@
     <style>
         :root { --bg: #050505; --card: #0d0d0d; --logo-gold: #baa184; }
         body { background-color: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        
+        /* সিকিউরিটি: পেজ লোড হওয়ার সময় কন্টেন্ট হাইড থাকবে */
+        #inbox-wrapper { display: none; }
+        
         .container { max-width: 900px; margin: 0 auto; }
         table { width: 100%; border-collapse: collapse; background: var(--card); margin-top: 20px; border: 1px solid #222; }
         th, td { padding: 15px; border-bottom: 1px solid #222; text-align: left; }
@@ -21,10 +25,13 @@
         .modal-content { background: var(--card); padding: 25px; border-radius: 12px; border: 1px solid var(--logo-gold); width: 90%; max-width: 500px; position: relative; }
         .close-btn { position: absolute; top: 10px; right: 15px; cursor: pointer; font-size: 20px; color: #888; }
     </style>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
 </head>
 <body>
 
-    <div class="container">
+    <div class="container" id="inbox-wrapper">
         <a href="admin.html" style="color: var(--logo-gold); text-decoration: none;"><i class="fas fa-arrow-left"></i> ড্যাশবোর্ড</a>
         <h2>মেসেজ ইনবক্স</h2>
         
@@ -37,8 +44,7 @@
                     <th>অ্যাকশন</th>
                 </tr>
             </thead>
-            <tbody id="messages-body">
-                </tbody>
+            <tbody id="messages-body"></tbody>
         </table>
     </div>
 
@@ -50,13 +56,23 @@
         </div>
     </div>
 
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
-    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
     <script src="config.js"></script>
     <script>
-        const db = window.db;
+        const auth = firebase.auth();
+        const db = firebase.firestore();
         const messagesBody = document.getElementById('messages-body');
         const modal = document.getElementById('msg-modal');
+        const MY_ADMIN_EMAIL = "atik89084@gmail.com";
+
+        // 🔒 সিকিউরিটি চেক ও কন্টেন্ট রেন্ডার
+        auth.onAuthStateChanged((user) => {
+            if (user && user.email === MY_ADMIN_EMAIL) {
+                document.getElementById('inbox-wrapper').style.display = 'block';
+                loadMessages();
+            } else {
+                window.location.href = "index.html";
+            }
+        });
 
         // ডাটা লোড করা
         function loadMessages() {
@@ -67,35 +83,39 @@
                     const date = data.timestamp ? new Date(data.timestamp.seconds * 1000).toLocaleString('bn-BD') : 'N/A';
                     
                     const tr = document.createElement('tr');
+                    // সিকিউরিটি: এখানে মেসেজগুলো সরাসরি এইচটিএমএল-এ না বসিয়ে innerText ব্যবহার করা ভালো
                     tr.innerHTML = `
-                        <td class="clickable-row" onclick="showMessage('${data.message.replace(/'/g, "\\'")}')">${data.name}</td>
-                        <td class="clickable-row" onclick="showMessage('${data.message.replace(/'/g, "\\'")}')">${data.email}</td>
-                        <td class="clickable-row" onclick="showMessage('${data.message.replace(/'/g, "\\'")}')">${date}</td>
+                        <td class="clickable-row">${data.name}</td>
+                        <td class="clickable-row">${data.email}</td>
+                        <td class="clickable-row">${date}</td>
                         <td><i class="fas fa-trash-alt del-btn" onclick="deleteMessage('${doc.id}')"></i></td>
                     `;
+                    // ক্লিক ইভেন্টটি পরে যোগ করছি যাতে মেসেজের টেক্সট নিরাপদ থাকে
+                    tr.querySelectorAll('.clickable-row').forEach(td => {
+                        td.onclick = () => showMessage(data.message);
+                    });
                     messagesBody.appendChild(tr);
                 });
             });
         }
 
-        // মেসেজ ডিলিট করার ফাংশন
         function deleteMessage(id) {
+            // ডিলিট করার আগেও এডমিন চেক
+            if (auth.currentUser?.email !== MY_ADMIN_EMAIL) return;
+            
             if(confirm("আপনি কি এই বার্তাটি ডিলিট করতে চান?")) {
                 db.collection("messages").doc(id).delete().then(() => {
-                    loadMessages(); // লিস্টটি আপডেট করার জন্য
+                    loadMessages();
                 });
             }
         }
 
-        // মডাল ফাংশন
         function showMessage(msg) {
             document.getElementById('full-message').innerText = msg;
             modal.style.display = 'flex';
         }
         function closeModal() { modal.style.display = 'none'; }
         window.onclick = (e) => { if(e.target == modal) closeModal(); }
-
-        loadMessages();
     </script>
 </body>
 </html>
