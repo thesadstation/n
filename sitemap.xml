@@ -6,6 +6,11 @@
     <priority>1.0</priority>
   </url>
   <url>
+    <loc>https://thesadstation.com/index.html</loc>
+    <changefreq>daily</changefreq>
+    <priority>1.0</priority>
+  </url>
+  <url>
     <loc>https://thesadstation.com/contact.html</loc>
     <changefreq>monthly</changefreq>
     <priority>0.5</priority>
@@ -49,10 +54,10 @@
     <loc>https://thesadstation.com/blog.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
-    <url>
-    <url>
+  </url>
+  <url>
     <loc>https://thesadstation.com/blog-detail.html</loc>
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
-    <url>
+  </url>
 </urlset>
