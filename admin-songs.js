@@ -1,9 +1,13 @@
 document.addEventListener('DOMContentLoaded', () => {
-    const auth = firebase.auth(); // সরাসরি ফায়ারবেস থেকে কল করো
+    const auth = firebase.auth();
     const db = firebase.firestore();
     const uploadForm = document.getElementById('add-song-form');
     const wrapperDiv = document.getElementById('song-upload-wrapper');
-    const MY_ADMIN_EMAIL = "atik89084@gmail.com"; // তোমার ইমেইল
+    const MY_ADMIN_EMAIL = "atik89084@gmail.com"; 
+
+    // URL থেকে আইডি ধরা (এডিট মোড চেক করার জন্য)
+    const urlParams = new URLSearchParams(window.location.search);
+    const editId = urlParams.get('id');
 
     const CLOUD_NAME = "dwxhgon31";
     const PRESET = "mystation";
@@ -12,8 +16,26 @@ document.addEventListener('DOMContentLoaded', () => {
     auth.onAuthStateChanged((user) => {
         if (user && user.email === MY_ADMIN_EMAIL) {
             if (wrapperDiv) wrapperDiv.style.display = 'block';
+            
+            // যদি এডিট আইডি থাকে, তবে ডাটাবেস থেকে ডাটা এনে ফিল্ডে বসাও
+            if (editId) {
+                db.collection("songs").doc(editId).get().then(doc => {
+                    if (doc.exists) {
+                        const d = doc.data();
+                        document.getElementById('song-id').value = d.id;
+                        document.getElementById('song-title').value = d.title;
+                        document.getElementById('song-slug').value = d.slug;
+                        document.getElementById('song-thumbnail').value = d.thumbnail;
+                        document.getElementById('song-audio').value = d.audio;
+                        document.getElementById('song-lyrics').value = d.lyrics;
+                        document.getElementById('song-seo-desc').value = d.seoDesc;
+                        document.getElementById('song-meta-tags').value = d.metaTags || "";
+                        document.querySelector('h2').innerText = "গান আপডেট করুন";
+                        document.querySelector('.btn-submit').innerText = "🚀 গানটি আপডেট করুন";
+                    }
+                });
+            }
         } else {
-            // এডমিন না হলে বা লগইন না থাকলে বের করে দাও
             window.location.href = "index.html";
         }
     });
@@ -49,7 +71,6 @@ document.addEventListener('DOMContentLoaded', () => {
         uploadForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             
-            // সাবমিট করার আগে শেষবার চেক
             const currentUser = auth.currentUser;
             if (!currentUser || currentUser.email !== MY_ADMIN_EMAIL) {
                 alert("অনুমতি নেই!");
@@ -66,7 +87,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const submitBtn = uploadForm.querySelector('button');
             submitBtn.disabled = true;
-            submitBtn.innerText = "ডাটাবেজে সেভ হচ্ছে...";
+            submitBtn.innerText = editId ? "আপডেট হচ্ছে..." : "ডাটাবেজে সেভ হচ্ছে...";
 
             try {
                 const songData = {
@@ -77,17 +98,24 @@ document.addEventListener('DOMContentLoaded', () => {
                     audio: audioUrl,
                     lyrics: document.getElementById('song-lyrics').value.trim(),
                     seoDesc: document.getElementById('song-seo-desc').value.trim(),
+                    metaTags: document.getElementById('song-meta-tags').value.trim(),
                     timestamp: firebase.firestore.FieldValue.serverTimestamp()
                 };
 
-                await db.collection("songs").doc(songData.slug).set(songData);
-                alert("ভাই, গানটি সফলভাবে লাইভ হয়েছে! 🎉");
+                if (editId) {
+                    await db.collection("songs").doc(editId).update(songData);
+                    alert("গানটি সফলভাবে আপডেট হয়েছে! 🎉");
+                } else {
+                    await db.collection("songs").doc(songData.slug).set(songData);
+                    alert("গানটি সফলভাবে লাইভ হয়েছে! 🎉");
+                }
                 uploadForm.reset();
+                window.location.href = "song-list.html";
             } catch (error) {
-                alert("দুঃখিত ভাই, সমস্যা হয়েছে: " + error.message);
+                alert("সমস্যা হয়েছে: " + error.message);
             } finally {
                 submitBtn.disabled = false;
-                submitBtn.innerText = "🚀 গানটি লাইভ করুন";
+                submitBtn.innerText = editId ? "🚀 গানটি আপডেট করুন" : "🚀 গানটি লাইভ করুন";
             }
         });
     }
