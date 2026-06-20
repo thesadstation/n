@@ -1,4 +1,4 @@
-document.addEventListener('DOMContentLoaded', () => {
+Document.addEventListener('DOMContentLoaded', () => {
     const auth = firebase.auth();
     const db = firebase.firestore();
     const blogForm = document.getElementById('blog-form');
@@ -78,6 +78,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 content: document.getElementById('blog-content').value.trim(),
                 metaDesc: document.getElementById('meta-desc').value.trim(),
                 metaTags: document.getElementById('meta-tags').value.trim(),
+                createdAt: editId ? (await db.collection("posts").doc(editId).get()).data().createdAt : firebase.firestore.FieldValue.serverTimestamp(),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
