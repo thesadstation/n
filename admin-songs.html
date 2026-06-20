@@ -10,7 +10,6 @@
         body { background-color: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 20px; }
         .wrapper { max-width: 600px; margin: 30px auto; padding: 25px; background: var(--card); border: 1px solid var(--logo-gold); border-radius: 14px; display: block; }
         
-        /* সিকিউরিটি আপডেট: পেজ লোড হওয়ার সময় কন্টেন্ট হাইড থাকবে */
         #song-upload-wrapper { display: none; }
         
         .back-btn { color: var(--logo-gold); text-decoration: none; font-size: 0.9rem; display: inline-block; margin-bottom: 20px; }
@@ -69,6 +68,10 @@
             <div class="form-group">
                 <label>SEO মেটা ডেসক্রিপশন</label>
                 <textarea id="song-seo-desc" rows="2" placeholder="এসইও ডেসক্রিপশন..."></textarea>
+            </div>
+            <div class="form-group">
+                <label>মেটা ট্যাগসমূহ</label>
+                <input type="text" id="song-meta-tags" placeholder="যেমন: sad, bangla song, emotional...">
             </div>
             <button type="submit" class="btn-submit">🚀 গানটি লাইভ করুন</button>
         </form>
