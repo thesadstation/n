@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ব্লগ তালিকা - The Sad Station</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+    <style>
+        :root { --bg: #050505; --card: #0d0d0d; --logo-gold: #baa184; }
+        body { background: var(--bg); color: #fff; font-family: 'Segoe UI', sans-serif; padding: 20px; }
+        .wrapper { max-width: 900px; margin: auto; }
+        h2 { color: var(--logo-gold); text-align: center; }
+        .search-bar { width: 100%; padding: 15px; margin-bottom: 20px; background: #121212; border: 1px solid var(--logo-gold); color: #fff; border-radius: 8px; box-sizing: border-box; }
+        .table-container { overflow-x: auto; background: var(--card); border-radius: 10px; border: 1px solid #333; }
+        table { width: 100%; border-collapse: collapse; min-width: 600px; }
+        th, td { padding: 15px; border-bottom: 1px solid #222; text-align: left; }
+        th { color: var(--logo-gold); }
+        .btn-act { padding: 8px 12px; border: none; border-radius: 5px; cursor: pointer; font-size: 0.8rem; margin: 2px; }
+        .edit { background: #baa184; color: #000; }
+        .delete { background: #dc3545; color: #fff; }
+    </style>
+</head>
+<body>
+
+<div class="wrapper">
+    <a href="admin.html" style="color:var(--logo-gold); text-decoration:none;"><i class="fas fa-arrow-left"></i> ড্যাশবোর্ডে ফিরে যান</a>
+    <h2>সকল ব্লগ পোস্ট</h2>
+    <input type="text" id="searchInput" class="search-bar" placeholder="🔍 শিরোনাম দিয়ে সার্চ করুন...">
+    
+    <div class="table-container">
+        <table>
+            <thead><tr><th>ছবি</th><th>শিরোনাম</th><th>স্লাগ</th><th>অ্যাকশন</th></tr></thead>
+            <tbody id="blogBody"></tbody>
+        </table>
+    </div>
+</div>
+
+<script src="config.js"></script>
+<script>
+    const MY_ADMIN_EMAIL = "atik89084@gmail.com";
+    firebase.auth().onAuthStateChanged(user => {
+        if (!user || user.email !== MY_ADMIN_EMAIL) window.location.href = "admin-login.html";
+    });
+
+    firebase.firestore().collection("posts").onSnapshot(snapshot => {
+        const tbody = document.getElementById('blogBody');
+        tbody.innerHTML = "";
+        snapshot.forEach(doc => {
+            const d = doc.data();
+            tbody.innerHTML += `<tr>
+                <td><img src="${d.thumbnail}" style="width:50px; height:50px; object-fit:cover; border-radius:5px;"></td>
+                <td>${d.title}</td>
+                <td>${d.slug}</td>
+                <td>
+                    <button class="btn-act edit" onclick="window.location.href='admin-blog.html?id=${doc.id}'">এডিট</button>
+                    <button class="btn-act delete" onclick="deletePost('${doc.id}')">ডিলিট</button>
+                </td>
+            </tr>`;
+        });
+    });
+
+    function deletePost(id) {
+        if (confirm("সত্যিই কি ডিলিট করতে চান?")) firebase.firestore().collection("posts").doc(id).delete();
+    }
+
+    document.getElementById('searchInput').addEventListener('keyup', (e) => {
+        const val = e.target.value.toLowerCase();
+        document.querySelectorAll('tbody tr').forEach(tr => {
+            tr.style.display = tr.innerText.toLowerCase().includes(val) ? "" : "none";
+        });
+    });
+</script>
+</body>
+</html>
