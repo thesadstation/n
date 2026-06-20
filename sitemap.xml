@@ -45,4 +45,14 @@
     <changefreq>weekly</changefreq>
     <priority>0.6</priority>
   </url>
+  <url>
+    <loc>https://thesadstation.com/blog.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    <url>
+    <url>
+    <loc>https://thesadstation.com/blog-detail.html</loc>
+    <changefreq>weekly</changefreq>
+    <priority>0.6</priority>
+    <url>
 </urlset>
