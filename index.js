@@ -29,7 +29,7 @@ function setupSearch() {
     if (searchInput) {
         searchInput.addEventListener('input', (e) => {
             const searchTerm = e.target.value.toLowerCase();
-            const filtered = allSongs.filter(song => song.title.toLowerCase().includes(searchTerm));
+            const filtered = allSongs.filter(song => song.title && song.title.toLowerCase().includes(searchTerm));
             displayedSongs = filtered.slice(0, 10);
             renderSongs();
             const noResults = document.getElementById('no-results');
@@ -62,7 +62,7 @@ window.toggleFavorite = async function(songId, buttonElement) {
     }
 };
 
-// ৪. রেন্ডার ইঞ্জিন (প্লেয়ারবিহীন ক্লিন কার্ড)
+// ৪. রেন্ডার ইঞ্জিন
 function renderSongs() {
     const songList = document.getElementById('song-list');
     const loader = document.getElementById('loader');
@@ -72,15 +72,15 @@ function renderSongs() {
     songList.innerHTML = ''; 
     displayedSongs.forEach(song => {
         const isFav = userFavorites.includes(String(song.id));
-        const card = document.createElement('article'); // এসইও এর জন্য article ট্যাগ
+        const card = document.createElement('article');
         card.className = 'song-card';
         card.innerHTML = `
-            <div class="song-header-meta">
-                <img class="song-thumb" src="${song.thumbnail}" alt="${song.title}">
+            <div class="song-header-meta" itemscope itemtype="https://schema.org/MusicRecording">
+                <img class="song-thumb" src="${song.thumbnail || ''}" alt="${song.title}" itemprop="image">
                 <div class="song-info-block">
-                    <h3 class="song-title">${song.title}</h3>
-                    <p class="song-excerpt">${song.lyrics ? song.lyrics.substring(0, 70) + '...' : 'লিরিক্স ও ডিটেইলস দেখুন...'}</p>
-                    <a href="song-detail.html?slug=${song.slug}" class="lyrics-link">বিস্তারিত দেখুন ও শুনুন</a>
+                    <h2 class="song-title" itemprop="name">${song.title || 'নাম নেই'}</h2>
+                    <p class="song-excerpt" itemprop="description">${song.lyrics ? song.lyrics.substring(0, 70) + '...' : 'বিস্তারিত দেখুন...'}</p>
+                    <a href="song-detail.html?slug=${song.slug || ''}" class="lyrics-link" itemprop="url">বিস্তারিত দেখুন ও শুনুন</a>
                 </div>
                 <button class="heart-btn ${isFav ? 'active' : ''}">
                     <i class="${isFav ? 'fas' : 'far'} fa-heart"></i>
@@ -92,20 +92,24 @@ function renderSongs() {
     });
 }
 
-// ৫. ইনিশিয়াল ফাংশন (লোগো, ব্যানার, সোশ্যাল সবকিছু লোড হবে)
+// ৫. ইনিশিয়াল ফাংশন (আপডেটেড লোগো ও ব্যানার লজিক)
 async function initializePlatform() {
-    // ব্র্যান্ডিং ও ব্যানার লোড
     db.collection("site_branding").doc("site_branding").get().then(doc => {
         if (doc.exists) {
             const data = doc.data();
             const logo = document.getElementById('site-logo');
             const banner = document.getElementById('main-banner');
-            if (logo && data.logo_url) { logo.src = data.logo_url; logo.style.display = 'block'; }
-            if (banner && data.banner_url) { banner.src = data.banner_url; banner.style.display = 'block'; }
+            if (logo && data.logo_url) { 
+                logo.src = data.logo_url; 
+                logo.style.display = 'block'; 
+            }
+            if (banner && data.banner_url) { 
+                banner.src = data.banner_url; 
+                banner.style.display = 'block'; 
+            }
         }
     });
 
-    // সোশ্যাল আইকন লোড
     db.collection("site_branding").doc("social_links").get().then(doc => {
         if (doc.exists) {
             const data = doc.data();
@@ -118,11 +122,18 @@ async function initializePlatform() {
     });
 
     try {
-        const songSnap = await db.collection("songs").get();
-        allSongs = songSnap.docs.map(doc => ({ id: String(doc.data().id), ...doc.data() }));
+        const songSnap = await db.collection("songs").orderBy("timestamp", "desc").get();
+        allSongs = songSnap.docs.map(doc => ({ 
+            id: String(doc.data().id || doc.id), 
+            ...doc.data() 
+        }));
         displayedSongs = allSongs.slice(0, 10);
         renderSongs();
-    } catch (e) { console.error(e); }
+    } catch (e) { 
+        console.error("গান লোড এরর:", e); 
+        const songList = document.getElementById('song-list');
+        if (songList) songList.innerHTML = "<p style='text-align:center;'>ডাটা লোড হচ্ছে না, কনসোল চেক করুন।</p>";
+    }
 
     window.auth.onAuthStateChanged(async (user) => {
         currentUser = user;
@@ -135,4 +146,4 @@ async function initializePlatform() {
             renderSongs();
         }
     });
-}
+                                                    }
