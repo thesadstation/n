@@ -6,6 +6,7 @@
     
     <title id="dynamic-title">গানের লিরিক্স ও ডিটেইলস | The Sad Station</title>
     <meta name="description" id="dynamic-desc" content="The Sad Station-এর অফিশিয়াল প্ল্যাটফর্মে এই মৌলিক গানটির সম্পূর্ণ লিরিক্স শুনুন, কাস্টম প্লেয়ারে প্লে করুন এবং হাই-কোয়ালিটি mp3 সরাসরি ডাউনলোড করুন।">
+    <meta name="keywords" content="The Sad Station, Bangla Song">
     
     <meta name="author" content="The Sad Station">
     <meta name="robots" content="index, follow">
@@ -36,6 +37,7 @@
                         <a href="index.html">🏠 হোম</a>
                         <a href="index.html?mode=favs">❤️ পছন্দের গান</a>
                         <a href="profile.html">👤 প্রোফাইল</a>
+                          <a href="blog.html">🏠 📸 ব্লগ</a>
                         <a href="about.html">ℹ️ আমাদের সম্পর্কে</a>
                         <a href="terms.html">📜 শর্তাবলী</a>
                         <a href="#" id="menu-logout" class="menu-logout-btn" style="display: none; color: #ff4d4d;"><i class="fas fa-sign-out-alt"></i> লগআউট</a>
@@ -47,7 +49,7 @@
 
     <main class="container" style="margin-top: 30px; margin-bottom: 50px;">
         
-        <div id="detail-loader" class="loader" style="text-align: center; padding: 50px;">গানের লিরিক্স লোড হচ্ছে</div>
+        <div id="detail-loader" class="loader" style="text-align: center; padding: 50px;">গানের লিরিক্স ও ডিটেল লোড হচ্ছে</div>
 
         <div id="detail-error" style="display: none; text-align: center; color: #888; padding: 40px;">
             <p>দুঃখিত, এই গানটি খুঁজে পাওয়া যায়নি! 🔍</p>
@@ -84,7 +86,7 @@
             </div>
 
             <div style="background: #121212; border: 1px solid #1c1c1c; border-radius: 12px; padding: 25px; margin-top: 25px;">
-                <h3 style="color: #fff; font-size: 18px; margin-bottom: 20px; border-left: 4px solid #1db954; padding-left: 10px;">📄 গানের সম্পূর্ণ লিরিক্স (Lyrics)</h3>
+                <h3 style="color: #fff; font-size: 18px; margin-bottom: 20px; border-left: 4px solid #1db954; padding-left: 10px;">📄 গানের সম্পূর্ণ ডিটেল ও লিরিক্স (Lyrics)</h3>
                 <div id="detail-lyrics-box" style="color: #eaeaea; white-space: pre-line; font-size: 15px; line-height: 1.8; letter-spacing: 0.5px;"></div>
             </div>
         </div>
@@ -160,7 +162,9 @@
             downloadBtn.href = audioUrl;
             downloadBtn.setAttribute('download', `${songTitle}.mp3`);
 
-            currentAudio.addEventListener('loadedmetadata', () => { durationTimeText.innerText = formatTime(currentAudio.duration); });
+            currentAudio.addEventListener('loadedmetadata', () => { 
+                durationTimeText.innerText = formatTime(currentAudio.duration); 
+            });
 
             playPauseBtn.addEventListener('click', () => {
                 if (currentAudio.paused) {
@@ -168,6 +172,7 @@
                     playIcon.className = 'fas fa-pause';
                     activeInterval = setInterval(() => {
                         if (!currentAudio.paused) {
+                            if (currentAudio.duration) durationTimeText.innerText = formatTime(currentAudio.duration);
                             seekSlider.value = (currentAudio.currentTime / currentAudio.duration) * 100 || 0;
                             currentTimeText.innerText = formatTime(currentAudio.currentTime);
                         }
@@ -180,13 +185,13 @@
             });
 
             seekSlider.addEventListener('input', () => {
-                const seekTo = currentAudio.duration * (seekSlider.value / 100);
-                currentAudio.currentTime = seekTo;
-                currentTimeText.innerText = formatTime(currentAudio.currentTime);
+                if (currentAudio.duration) {
+                    const seekTo = currentAudio.duration * (seekSlider.value / 100);
+                    currentAudio.currentTime = seekTo;
+                }
             });
         }
 
-        // মূল আপডেট: Slug দিয়ে ডাটা কুয়েরি
         const params = new URLSearchParams(window.location.search);
         const slug = params.get('slug');
 
@@ -210,9 +215,16 @@
             document.getElementById('detail-song-thumb').src = songData.thumbnail;
             document.getElementById('detail-lyrics-box').innerText = songData.lyrics;
             
-            // SEO update
             document.title = songData.title + " | The Sad Station";
-            document.getElementById('dynamic-desc').content = songData.lyrics.substring(0, 160);
+            document.getElementById('dynamic-desc').content = songData.seoDesc || songData.lyrics.substring(0, 160);
+            
+            let metaKeywords = document.querySelector('meta[name="keywords"]');
+            if (!metaKeywords) {
+                metaKeywords = document.createElement('meta');
+                metaKeywords.name = "keywords";
+                document.head.appendChild(metaKeywords);
+            }
+            metaKeywords.content = songData.metaTags || "Bangla Song, The Sad Station, Lyrics, Download";
 
             document.getElementById('detail-share-btn').addEventListener('click', () => {
                 if (navigator.share) {
@@ -233,4 +245,3 @@
     </script>
 </body>
 </html>
-    
