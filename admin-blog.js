@@ -1,4 +1,4 @@
-Document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', () => {
     const auth = firebase.auth();
     const db = firebase.firestore();
     const blogForm = document.getElementById('blog-form');
@@ -70,6 +70,7 @@ Document.addEventListener('DOMContentLoaded', () => {
             submitBtn.disabled = true;
             submitBtn.innerText = editId ? "আপডেট হচ্ছে..." : "পাবলিশ হচ্ছে...";
 
+            // সব ফিল্ডের ডাটা এখানে তৈরি করা হচ্ছে
             const blogData = {
                 id: parseInt(document.getElementById('blog-id').value),
                 title: document.getElementById('blog-title').value.trim(),
@@ -78,15 +79,17 @@ Document.addEventListener('DOMContentLoaded', () => {
                 content: document.getElementById('blog-content').value.trim(),
                 metaDesc: document.getElementById('meta-desc').value.trim(),
                 metaTags: document.getElementById('meta-tags').value.trim(),
-                createdAt: editId ? (await db.collection("posts").doc(editId).get()).data().createdAt : firebase.firestore.FieldValue.serverTimestamp(),
                 updatedAt: firebase.firestore.FieldValue.serverTimestamp()
             };
 
             try {
                 if (editId) {
+                    // এডিট মোড: createdAt ছাড়া বাকি সব আপডেট হবে
                     await db.collection("posts").doc(editId).update(blogData);
                     alert("ব্লগ আপডেট সফল হয়েছে! 🎉");
                 } else {
+                    // নতুন পোস্ট মোড: সব ফিল্ডের সাথে createdAt যুক্ত করে তৈরি হবে
+                    blogData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
                     await db.collection("posts").doc(blogData.slug).set(blogData);
                     alert("ব্লগ সফলভাবে লাইভ হয়েছে! 🎉");
                 }
