@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="bn" itemscope itemtype="http://schema.org/BlogPosting">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ব্লগ ডিটেইলস | The Sad Station</title>
+    <meta name="description" content="ব্লগ বিস্তারিত পড়ুন">
+    
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-auth-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+    <header>
+        <div class="container">
+            <div class="header-top-row">
+                <div class="header-left" style="display: flex; align-items: center;">
+                    <a href="blog.html" style="text-decoration: none; color: white; margin-right: 15px; font-size: 20px;"><i class="fas fa-arrow-left"></i></a>
+                    <img id="site-logo" src="" alt="The Sad Station Logo" class="site-logo" style="display: none; width: 40px; margin-right: 10px;">
+                    <h1 class="site-title">The Sad Station</h1>
+                </div>
+                
+                <div class="menu-container">
+                    <button id="menu-toggle-btn" class="three-dot-btn" aria-label="Menu">
+                        <i class="fas fa-bars"></i>
+                    </button>
+                    <div id="dropdown-menu" class="dropdown-menu">
+                        <a href="index.html">🏠 হোম</a>
+                        <a href="wishlist.html">❤️ পছন্দের গান</a>
+                        <a href="profile.html">👤 প্রোফাইল</a>
+                        <a href="blog.html">📸 ব্লগ</a>
+                        <a href="about.html">ℹ️ আমাদের সম্পর্কে</a>
+                        <a href="terms.html">📜 শর্তাবলী</a>
+                        <a href="#" id="menu-logout" class="menu-logout-btn" style="display: none; color: #ff4d4d;"><i class="fas fa-sign-out-alt"></i> লগআউট</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <main class="container" style="margin-top: 30px; margin-bottom: 50px;">
+        <div id="loader" class="loader">লোড হচ্ছে...</div>
+        <article id="blog-post" style="display:none;">
+            <h2 id="post-title" style="color: #fff; margin-bottom: 20px;"></h2>
+            <img id="post-thumb" src="" alt="" style="width:100%; border-radius:12px; margin-bottom:20px;">
+            <div id="post-content" style="color: #ccc; line-height: 1.6; white-space: pre-line;"></div>
+        </article>
+    </main>
+
+    <footer>
+        <div class="container">
+            <div class="social-links-container" style="margin-bottom: 20px; text-align: center;">
+                <a id="link-telegram" href="#" target="_blank" style="display:none; color:#0088cc; margin: 0 12px; font-size: 1.6rem;"><i class="fab fa-telegram-plane"></i></a>
+                <a id="link-youtube" href="#" target="_blank" style="display:none; color:#ff0000; margin: 0 12px; font-size: 1.6rem;"><i class="fab fa-youtube"></i></a>
+                <a id="link-facebook" href="#" target="_blank" style="display:none; color:#1877f2; margin: 0 12px; font-size: 1.6rem;"><i class="fab fa-facebook"></i></a>
+                <a id="link-instagram" href="#" target="_blank" style="display:none; color:#e1306c; margin: 0 12px; font-size: 1.6rem;"><i class="fab fa-instagram"></i></a>
+                <a id="link-tiktok" href="#" target="_blank" style="display:none; color:#00f2fe; margin: 0 12px; font-size: 1.6rem;"><i class="fab fa-tiktok"></i></a>
+            </div>
+            <div class="footer-links" style="text-align: center;">
+                <a href="about.html">About Us</a> | 
+                <a href="contact.html">Contact Us</a> | 
+                <a href="terms.html">Terms & Conditions</a> | 
+                <a href="privacy.html">Privacy Policy</a>
+            </div>
+            <p class="copyright" style="text-align: center; font-size: 12px; color: #555;">Copyright &copy; 2026 The Sad Station. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <script src="config.js"></script>
+    <script src="blog-detail.js"></script>
+</body>
+  </html>
+  
