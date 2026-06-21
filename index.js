@@ -13,6 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
     initializePlatform();
     setupMenu();
     setupSearch();
+    
+    // নিশ্চিতভাবে পপ-আপ কল করা হচ্ছে
+    setTimeout(setupAppInstallPrompt, 1000); 
 });
 
 function setupMenu() {
@@ -92,21 +95,15 @@ function renderSongs() {
     });
 }
 
-// ৫. ইনিশিয়াল ফাংশন (আপডেটেড লোগো ও ব্যানার লজিক)
+// ৫. ইনিশিয়াল ফাংশন
 async function initializePlatform() {
     db.collection("site_branding").doc("site_branding").get().then(doc => {
         if (doc.exists) {
             const data = doc.data();
             const logo = document.getElementById('site-logo');
             const banner = document.getElementById('main-banner');
-            if (logo && data.logo_url) { 
-                logo.src = data.logo_url; 
-                logo.style.display = 'block'; 
-            }
-            if (banner && data.banner_url) { 
-                banner.src = data.banner_url; 
-                banner.style.display = 'block'; 
-            }
+            if (logo && data.logo_url) { logo.src = data.logo_url; logo.style.display = 'block'; }
+            if (banner && data.banner_url) { banner.src = data.banner_url; banner.style.display = 'block'; }
         }
     });
 
@@ -131,8 +128,6 @@ async function initializePlatform() {
         renderSongs();
     } catch (e) { 
         console.error("গান লোড এরর:", e); 
-        const songList = document.getElementById('song-list');
-        if (songList) songList.innerHTML = "<p style='text-align:center;'>ডাটা লোড হচ্ছে না, কনসোল চেক করুন।</p>";
     }
 
     window.auth.onAuthStateChanged(async (user) => {
@@ -146,4 +141,38 @@ async function initializePlatform() {
             renderSongs();
         }
     });
-                                                    }
+}
+
+// ৬. স্টাইলিশ অ্যাপ ইনস্টল পপ-আপ লজিক
+function setupAppInstallPrompt() {
+    if (document.getElementById("custom-install-banner")) return; // যাতে দুইবার তৈরি না হয়
+
+    const installBanner = document.createElement('div');
+    installBanner.id = "custom-install-banner";
+    installBanner.style = `
+        position: fixed; bottom: 0; left: 0; width: 100%; 
+        background: #1a1a1a; color: #fff; padding: 15px; 
+        text-align: center; z-index: 999999; box-shadow: 0 -2px 10px rgba(0,0,0,0.5);
+        border-top: 2px solid #ffeb3b; display: none;
+    `;
+    installBanner.innerHTML = `
+        <div style="font-size: 14px; margin-bottom: 10px;">🌙 কষ্টের সুর, এখন আরও কাছে — The Sad Station App ❤️</div>
+        <button id="btn-install" style="background: #ffeb3b; color: #000; border: none; padding: 10px 20px; border-radius: 25px; font-weight: bold; cursor: pointer; margin-right: 10px;">ডাউনলোড করুন</button>
+        <button id="btn-close" style="background: transparent; color: #ccc; border: 1px solid #555; padding: 10px 15px; border-radius: 25px; cursor: pointer;">পরে</button>
+    `;
+    document.body.appendChild(installBanner);
+
+    // পপ-আপ দেখানোর সময় ৩ সেকেন্ড
+    setTimeout(() => { 
+        installBanner.style.display = 'block'; 
+    }, 3000);
+
+    document.getElementById('btn-install').onclick = () => {
+        window.open("https://www.appcreator24.com/app4091026-b1nsp3", "_blank");
+        installBanner.style.display = 'none';
+    };
+
+    document.getElementById('btn-close').onclick = () => {
+        installBanner.style.display = 'none';
+    };
+}
